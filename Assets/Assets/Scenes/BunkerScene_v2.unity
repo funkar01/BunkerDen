@@ -25288,6 +25288,9 @@ MonoBehaviour:
   Scene7Dialogue1Text: Well done, you found the secret button at the Heart of India of Indian map!
   Scene7ObjectiveText: Explore the unlocked locker!
   Scene7Dialogue1Clip: {fileID: 0}
+  Scene8Dialogue1Text: Bravo, you have found the Key, now exit the bunker ASAP
+  Scene8ObjectiveText: Exit the bunker quickly!
+  Scene8Dialogue1Clip: {fileID: 0}
   Dialogue1Clip: {fileID: 0}
   Dialogue2Clip: {fileID: 0}
   HUDTypewriterSpeed: 0.035

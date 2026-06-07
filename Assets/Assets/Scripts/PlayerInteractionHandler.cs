@@ -14,6 +14,7 @@ namespace BunkerTools
         private bool _triggered = false;
         private bool _commandRoomTriggered = false;
         private bool _mapTriggered = false;
+        private bool _lockerTriggered = false;
         private AudioClip _voiceChirpSFX;
 
         private void Start()
@@ -26,6 +27,7 @@ namespace BunkerTools
             CheckAndRestorePower(other.gameObject);
             CheckCommandRoomTrigger(other.gameObject);
             CheckMapTrigger(other.gameObject);
+            CheckLockerTrigger(other.gameObject);
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -33,6 +35,7 @@ namespace BunkerTools
             CheckAndRestorePower(collision.gameObject);
             CheckCommandRoomTrigger(collision.gameObject);
             CheckMapTrigger(collision.gameObject);
+            CheckLockerTrigger(collision.gameObject);
         }
 
         private void CheckAndRestorePower(GameObject targetGo)
@@ -229,6 +232,42 @@ namespace BunkerTools
                 if (MissionCoordinator.Instance != null)
                 {
                     MissionCoordinator.Instance.StartScene7DialogueSequence();
+                }
+            }
+        }
+
+        private void CheckLockerTrigger(GameObject targetGo)
+        {
+            if (_lockerTriggered) return;
+
+            // Only allow locker trigger during Scene 7
+            if (MissionCoordinator.Instance != null && !MissionCoordinator.Instance.IsScene7Active)
+            {
+                return;
+            }
+
+            // Detect collision/trigger with game object having tag "Locker"
+            if (targetGo.CompareTag("Locker"))
+            {
+                _lockerTriggered = true;
+                Debug.Log($"[PlayerInteractionHandler] Collision/Trigger with tagged 'Locker' object '{targetGo.name}' detected.");
+
+                // Disable "Highlighter_Locker"
+                GameObject lockerHL = FindGameObjectIncludingInactive("Highlighter_Locker");
+                if (lockerHL != null)
+                {
+                    lockerHL.SetActive(false);
+                    Debug.Log("[PlayerInteractionHandler] Highlighter_Locker deactivated.");
+                }
+                else
+                {
+                    Debug.LogWarning("[PlayerInteractionHandler] Highlighter_Locker not found in scene.");
+                }
+
+                // Initiate Scene 8 dialogues
+                if (MissionCoordinator.Instance != null)
+                {
+                    MissionCoordinator.Instance.StartScene8DialogueSequence();
                 }
             }
         }

@@ -55,6 +55,8 @@ namespace BunkerTools
             coordinator.Scene6ObjectiveText = "Check for the 'Heart of India'!";
             coordinator.Scene7Dialogue1Text = "Well done, you found the secret button at the Heart of India of Indian map!";
             coordinator.Scene7ObjectiveText = "Explore the unlocked locker!";
+            coordinator.Scene8Dialogue1Text = "Bravo, you have found the Key, now exit the bunker ASAP";
+            coordinator.Scene8ObjectiveText = "Exit the bunker quickly!";
             coordinator.HUDTypewriterSpeed = 0.035f;
 
             // 5. Create and configure the MissionCoordinatorHUD

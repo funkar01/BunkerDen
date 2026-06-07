@@ -74,6 +74,16 @@ namespace BunkerTools
         [Tooltip("Optional Voice clip for Scene 7 Dialogue 1.")]
         public AudioClip Scene7Dialogue1Clip;
 
+        [Header("Scene 8 Dialogue Configuration")]
+        [Tooltip("First Dialogue text for Scene 8.")]
+        public string Scene8Dialogue1Text = "Bravo, you have found the Key, now exit the bunker ASAP";
+
+        [Tooltip("Objective text for Scene 8.")]
+        public string Scene8ObjectiveText = "Exit the bunker quickly!";
+
+        [Tooltip("Optional Voice clip for Scene 8 Dialogue 1.")]
+        public AudioClip Scene8Dialogue1Clip;
+
         [Header("Voice Clips (Optional - Synthesized if empty)")]
         [Tooltip("Audio clip for Dialogue 1.")]
         public AudioClip Dialogue1Clip;
@@ -515,6 +525,13 @@ namespace BunkerTools
         /// </summary>
         public bool IsScene6Active => _scene6SequenceStarted && !_scene7SequenceStarted;
 
+        /// <summary>
+        /// Gets whether Scene 7 is currently active (Scene 7 started but Scene 8 has not).
+        /// </summary>
+        public bool IsScene7Active => _scene7SequenceStarted && !_scene8SequenceStarted;
+
+        private bool _scene8SequenceStarted = false;
+
 
         /// <summary>
         /// Initiates the Scene 7 (Emergency Button hint) dialogue sequence.
@@ -581,6 +598,73 @@ namespace BunkerTools
                 );
             }
             Debug.Log("[MissionCoordinator] Scene 7 dialogue sequence completed.");
+        }
+
+        /// <summary>
+        /// Initiates the Scene 8 (Exit Bunker ASAP) dialogue sequence.
+        /// </summary>
+        public void StartScene8DialogueSequence()
+        {
+            if (_scene8SequenceStarted) return;
+            _scene8SequenceStarted = true;
+            StartCoroutine(Scene8DialogueSequenceRoutine());
+        }
+
+        private IEnumerator Scene8DialogueSequenceRoutine()
+        {
+            Debug.Log("[MissionCoordinator] Initiating Scene 8 dialogues.");
+
+            // Ensure HUD is visible and faded in
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.SetHUDAlpha(1f);
+            }
+
+            // ============================================
+            // SCENE 8 DIALOGUE 1 SEQUENCE
+            // ============================================
+            PlaySound(_radioStartSFX, 0.45f);
+            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
+
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "TRANSMISSION: ACTIVE", 
+                    Scene8Dialogue1Text, 
+                    HUDTypewriterSpeed, 
+                    _voiceChirpSFX
+                );
+            }
+
+            float dialogue1Duration = 4.0f;
+            if (Scene8Dialogue1Clip != null)
+            {
+                _audioSource.clip = Scene8Dialogue1Clip;
+                _audioSource.Play();
+                dialogue1Duration = Scene8Dialogue1Clip.length;
+            }
+            else
+            {
+                PlaySpeechBeep();
+            }
+
+            float d1TextTime = Scene8Dialogue1Text.Length * HUDTypewriterSpeed;
+            yield return new WaitForSeconds(Mathf.Max(dialogue1Duration, d1TextTime));
+
+            PlaySound(_radioEndSFX, 0.45f);
+            yield return new WaitForSeconds(0.45f);
+
+            // ============================================
+            // CONVERT TO OBJECTIVE TRACKING
+            // ============================================
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowObjective(
+                    "PRIORITY OBJECTIVE", 
+                    Scene8ObjectiveText
+                );
+            }
+            Debug.Log("[MissionCoordinator] Scene 8 dialogue sequence completed.");
         }
 
         private void PlaySound(AudioClip clip, float volume)
