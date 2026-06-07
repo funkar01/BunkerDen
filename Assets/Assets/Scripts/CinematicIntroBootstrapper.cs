@@ -53,6 +53,8 @@ namespace BunkerTools
             coordinator.Scene5ObjectiveText = "Search for the biometric key!";
             coordinator.Scene6Dialogue1Text = "The secret code is 'heart of India'.";
             coordinator.Scene6ObjectiveText = "Check for the 'Heart of India'!";
+            coordinator.Scene7Dialogue1Text = "Emergency button at the Heart of India!";
+            coordinator.Scene7ObjectiveText = "Find the emergency button!";
             coordinator.HUDTypewriterSpeed = 0.035f;
 
             // 5. Create and configure the MissionCoordinatorHUD

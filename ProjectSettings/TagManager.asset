@@ -7,6 +7,8 @@ TagManager:
   - CinemachineTarget
   - ElectricSwitch
   - CommandRoom
+  - Map
+  - Locker
   layers:
   - Default
   - TransparentFX

@@ -13,6 +13,7 @@ namespace BunkerTools
     {
         private bool _triggered = false;
         private bool _commandRoomTriggered = false;
+        private bool _mapTriggered = false;
         private AudioClip _voiceChirpSFX;
 
         private void Start()
@@ -24,12 +25,14 @@ namespace BunkerTools
         {
             CheckAndRestorePower(other.gameObject);
             CheckCommandRoomTrigger(other.gameObject);
+            CheckMapTrigger(other.gameObject);
         }
 
         private void OnCollisionEnter(Collision collision)
         {
             CheckAndRestorePower(collision.gameObject);
             CheckCommandRoomTrigger(collision.gameObject);
+            CheckMapTrigger(collision.gameObject);
         }
 
         private void CheckAndRestorePower(GameObject targetGo)
@@ -168,6 +171,74 @@ namespace BunkerTools
             AudioClip clip = AudioClip.Create("VoiceChirp", samplesCount, 1, sampleRate, false);
             clip.SetData(sampleArray, 0);
             return clip;
+        }
+
+        private void CheckMapTrigger(GameObject targetGo)
+        {
+            if (_mapTriggered) return;
+
+            // Detect collision/trigger with game object having tag "Map"
+            if (targetGo.CompareTag("Map"))
+            {
+                _mapTriggered = true;
+                Debug.Log($"[PlayerInteractionHandler] Collision/Trigger with tagged 'Map' object '{targetGo.name}' detected.");
+
+                // Disable "Highlighter_IndiaMap"
+                GameObject mapHL = FindGameObjectIncludingInactive("Highlighter_IndiaMap");
+                if (mapHL != null)
+                {
+                    mapHL.SetActive(false);
+                    Debug.Log("[PlayerInteractionHandler] Highlighter_IndiaMap deactivated.");
+                }
+                else
+                {
+                    Debug.LogWarning("[PlayerInteractionHandler] Highlighter_IndiaMap not found in scene.");
+                }
+
+                // Enable "Highlighter_Locker"
+                GameObject lockerHL = FindGameObjectIncludingInactive("Highlighter_Locker");
+                if (lockerHL != null)
+                {
+                    lockerHL.SetActive(true);
+                    Debug.Log("[PlayerInteractionHandler] Highlighter_Locker activated.");
+                }
+                else
+                {
+                    Debug.LogWarning("[PlayerInteractionHandler] Highlighter_Locker not found in scene.");
+                }
+
+                // Initiate Scene 7 dialogues
+                if (MissionCoordinator.Instance != null)
+                {
+                    MissionCoordinator.Instance.StartScene7DialogueSequence();
+                }
+            }
+        }
+
+        private GameObject FindGameObjectIncludingInactive(string name)
+        {
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (!scene.isLoaded) return null;
+
+            GameObject[] roots = scene.GetRootGameObjects();
+            foreach (var root in roots)
+            {
+                GameObject match = FindInChildrenRecursive(root.transform, name);
+                if (match != null) return match;
+            }
+            return null;
+        }
+
+        private GameObject FindInChildrenRecursive(Transform parent, string name)
+        {
+            if (parent.name == name) return parent.gameObject;
+
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                GameObject match = FindInChildrenRecursive(parent.GetChild(i), name);
+                if (match != null) return match;
+            }
+            return null;
         }
     }
 }

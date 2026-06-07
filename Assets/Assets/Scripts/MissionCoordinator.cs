@@ -64,6 +64,16 @@ namespace BunkerTools
         [Tooltip("Optional Voice clip for Scene 6 Dialogue 1.")]
         public AudioClip Scene6Dialogue1Clip;
 
+        [Header("Scene 7 Dialogue Configuration")]
+        [Tooltip("First Dialogue text for Scene 7.")]
+        public string Scene7Dialogue1Text = "Emergency button at the Heart of India!";
+
+        [Tooltip("Objective text for Scene 7.")]
+        public string Scene7ObjectiveText = "Find the emergency button!";
+
+        [Tooltip("Optional Voice clip for Scene 7 Dialogue 1.")]
+        public AudioClip Scene7Dialogue1Clip;
+
         [Header("Voice Clips (Optional - Synthesized if empty)")]
         [Tooltip("Audio clip for Dialogue 1.")]
         public AudioClip Dialogue1Clip;
@@ -496,6 +506,75 @@ namespace BunkerTools
                 );
             }
             Debug.Log("[MissionCoordinator] Scene 6 dialogue sequence completed.");
+        }
+
+        private bool _scene7SequenceStarted = false;
+
+        /// <summary>
+        /// Initiates the Scene 7 (Emergency Button hint) dialogue sequence.
+        /// </summary>
+        public void StartScene7DialogueSequence()
+        {
+            if (_scene7SequenceStarted) return;
+            _scene7SequenceStarted = true;
+            StartCoroutine(Scene7DialogueSequenceRoutine());
+        }
+
+        private IEnumerator Scene7DialogueSequenceRoutine()
+        {
+            Debug.Log("[MissionCoordinator] Initiating Scene 7 dialogues.");
+
+            // Ensure HUD is visible and faded in
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.SetHUDAlpha(1f);
+            }
+
+            // ============================================
+            // SCENE 7 DIALOGUE 1 SEQUENCE
+            // ============================================
+            PlaySound(_radioStartSFX, 0.45f);
+            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
+
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "TRANSMISSION: ACTIVE", 
+                    Scene7Dialogue1Text, 
+                    HUDTypewriterSpeed, 
+                    _voiceChirpSFX
+                );
+            }
+
+            float dialogue1Duration = 4.0f;
+            if (Scene7Dialogue1Clip != null)
+            {
+                _audioSource.clip = Scene7Dialogue1Clip;
+                _audioSource.Play();
+                dialogue1Duration = Scene7Dialogue1Clip.length;
+            }
+            else
+            {
+                PlaySpeechBeep();
+            }
+
+            float d1TextTime = Scene7Dialogue1Text.Length * HUDTypewriterSpeed;
+            yield return new WaitForSeconds(Mathf.Max(dialogue1Duration, d1TextTime));
+
+            PlaySound(_radioEndSFX, 0.45f);
+            yield return new WaitForSeconds(0.45f);
+
+            // ============================================
+            // CONVERT TO OBJECTIVE TRACKING
+            // ============================================
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowObjective(
+                    "PRIORITY OBJECTIVE", 
+                    Scene7ObjectiveText
+                );
+            }
+            Debug.Log("[MissionCoordinator] Scene 7 dialogue sequence completed.");
         }
 
         private void PlaySound(AudioClip clip, float volume)

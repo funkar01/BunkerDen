@@ -203,12 +203,63 @@ namespace BunkerTools
                 EditorApplication.Exit(1);
             }
 
+            // Configure default Scene 7 values for validation
+            coordinator.Scene7Dialogue1Text = "Emergency button at the Heart of India!";
+            coordinator.Scene7ObjectiveText = "Find the emergency button!";
+
+            // Create mock Map, Highlighter_IndiaMap, Highlighter_Locker
+            GameObject mockMap = new GameObject("MockMap");
+            mockMap.tag = "Map";
+
+            GameObject mockIndiaMapHL = new GameObject("Highlighter_IndiaMap");
+            mockIndiaMapHL.SetActive(true);
+
+            GameObject mockLockerHL = new GameObject("Highlighter_Locker");
+            mockLockerHL.SetActive(false);
+
+            // Verify Map trigger via reflection
+            var mapMethod = typeof(PlayerInteractionHandler).GetMethod("CheckMapTrigger", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (mapMethod == null)
+            {
+                Debug.LogError("[VERIFICATION] CheckMapTrigger method not found on PlayerInteractionHandler script!");
+                EditorApplication.Exit(1);
+            }
+
+            mapMethod.Invoke(interaction, new object[] { mockMap });
+
+            // Validate that Highlighter_IndiaMap was disabled and Highlighter_Locker was enabled
+            if (!mockIndiaMapHL.activeSelf && mockLockerHL.activeSelf)
+            {
+                Debug.Log("[VERIFICATION] SUCCESS: Highlighter_IndiaMap disabled and Highlighter_Locker enabled upon trigger.");
+            }
+            else
+            {
+                Debug.LogError($"[VERIFICATION] FAILURE: Highlighter active states are invalid! IndiaMap active={mockIndiaMapHL.activeSelf}, Locker active={mockLockerHL.activeSelf}");
+                EditorApplication.Exit(1);
+            }
+
+            // Validate Scene 7 configurations
+            if (coordinator.Scene7Dialogue1Text.Contains("Heart of India") && coordinator.Scene7ObjectiveText.Contains("emergency button"))
+            {
+                Debug.Log("[VERIFICATION] SUCCESS: Scene 7 dialogue configuration validated correctly.");
+            }
+            else
+            {
+                Debug.LogError("[VERIFICATION] FAILURE: Scene 7 dialogue configurations are invalid!");
+                EditorApplication.Exit(1);
+            }
+
             // Clean up temporary objects
             Object.DestroyImmediate(mockPlayer);
             Object.DestroyImmediate(mockCommandRoom);
             Object.DestroyImmediate(mockHighlighter);
+            Object.DestroyImmediate(mockMap);
+            Object.DestroyImmediate(mockIndiaMapHL);
+            Object.DestroyImmediate(mockLockerHL);
 
-            Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger, Scene 4, Scene 5, and Scene 6 verification checks passed successfully!");
+            Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger, Scene 4, Scene 5, Scene 6, and Scene 7 verification checks passed successfully!");
             EditorApplication.Exit(0);
         }
     }
