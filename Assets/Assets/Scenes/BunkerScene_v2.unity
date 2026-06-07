@@ -21203,11 +21203,11 @@ GameObject:
   - component: {fileID: 939106593}
   m_Layer: 0
   m_Name: Highlighter_Locker
-  m_TagString: CommandRoom
+  m_TagString: Locker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &939106592
 Transform:
   m_ObjectHideFlags: 0
@@ -25285,8 +25285,8 @@ MonoBehaviour:
   Scene6Dialogue1Text: The secret code is 'heart of India'.
   Scene6ObjectiveText: Check for the 'Heart of India'!
   Scene6Dialogue1Clip: {fileID: 0}
-  Scene7Dialogue1Text: Emergency button at the Heart of India!
-  Scene7ObjectiveText: Find the emergency button!
+  Scene7Dialogue1Text: Well done, you found the secret button at the Heart of India of Indian map!
+  Scene7ObjectiveText: Explore the unlocked locker!
   Scene7Dialogue1Clip: {fileID: 0}
   Dialogue1Clip: {fileID: 0}
   Dialogue2Clip: {fileID: 0}
@@ -47038,7 +47038,7 @@ GameObject:
   - component: {fileID: 1854156034}
   m_Layer: 0
   m_Name: Highlighter_IndiaMap
-  m_TagString: CommandRoom
+  m_TagString: Map
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

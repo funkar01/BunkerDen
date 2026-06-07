@@ -204,8 +204,8 @@ namespace BunkerTools
             }
 
             // Configure default Scene 7 values for validation
-            coordinator.Scene7Dialogue1Text = "Emergency button at the Heart of India!";
-            coordinator.Scene7ObjectiveText = "Find the emergency button!";
+            coordinator.Scene7Dialogue1Text = "Well done, you found the secret button at the Heart of India of Indian map!";
+            coordinator.Scene7ObjectiveText = "Explore the unlocked locker!";
 
             // Create mock Map, Highlighter_IndiaMap, Highlighter_Locker
             GameObject mockMap = new GameObject("MockMap");
@@ -241,7 +241,7 @@ namespace BunkerTools
             }
 
             // Validate Scene 7 configurations
-            if (coordinator.Scene7Dialogue1Text.Contains("Heart of India") && coordinator.Scene7ObjectiveText.Contains("emergency button"))
+            if (coordinator.Scene7Dialogue1Text.Contains("Indian map") && coordinator.Scene7ObjectiveText.Contains("unlocked locker"))
             {
                 Debug.Log("[VERIFICATION] SUCCESS: Scene 7 dialogue configuration validated correctly.");
             }

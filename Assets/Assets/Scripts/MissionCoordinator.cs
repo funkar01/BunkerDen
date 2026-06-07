@@ -66,10 +66,10 @@ namespace BunkerTools
 
         [Header("Scene 7 Dialogue Configuration")]
         [Tooltip("First Dialogue text for Scene 7.")]
-        public string Scene7Dialogue1Text = "Emergency button at the Heart of India!";
+        public string Scene7Dialogue1Text = "Well done, you found the secret button at the Heart of India of Indian map!";
 
         [Tooltip("Objective text for Scene 7.")]
-        public string Scene7ObjectiveText = "Find the emergency button!";
+        public string Scene7ObjectiveText = "Explore the unlocked locker!";
 
         [Tooltip("Optional Voice clip for Scene 7 Dialogue 1.")]
         public AudioClip Scene7Dialogue1Clip;
