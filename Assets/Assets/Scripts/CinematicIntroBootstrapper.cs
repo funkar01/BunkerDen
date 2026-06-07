@@ -51,6 +51,7 @@ namespace BunkerTools
             coordinator.Scene5Dialogue1Text = "Great, now search for the evidence, it should be the biometric key which looks like a hard drive.";
             coordinator.Scene5Dialogue2Text = "";
             coordinator.Scene5ObjectiveText = "Search for the biometric key!";
+            coordinator.Scene6Dialogue1Text = "The secret code is 'heart of India'.";
             coordinator.HUDTypewriterSpeed = 0.035f;
 
             // 5. Create and configure the MissionCoordinatorHUD

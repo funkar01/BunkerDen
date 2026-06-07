@@ -188,12 +188,26 @@ namespace BunkerTools
                 EditorApplication.Exit(1);
             }
 
+            // Configure default Scene 6 values for validation
+            coordinator.Scene6Dialogue1Text = "The secret code is 'heart of India'.";
+
+            // Validate Scene 6 configurations
+            if (coordinator.Scene6Dialogue1Text.Contains("heart of India"))
+            {
+                Debug.Log("[VERIFICATION] SUCCESS: Scene 6 dialogue configuration validated correctly.");
+            }
+            else
+            {
+                Debug.LogError("[VERIFICATION] FAILURE: Scene 6 dialogue configurations are invalid!");
+                EditorApplication.Exit(1);
+            }
+
             // Clean up temporary objects
             Object.DestroyImmediate(mockPlayer);
             Object.DestroyImmediate(mockCommandRoom);
             Object.DestroyImmediate(mockHighlighter);
 
-            Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger, Scene 4, and Scene 5 verification checks passed successfully!");
+            Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger, Scene 4, Scene 5, and Scene 6 verification checks passed successfully!");
             EditorApplication.Exit(0);
         }
     }

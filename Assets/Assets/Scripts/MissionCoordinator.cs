@@ -54,6 +54,13 @@ namespace BunkerTools
         [Tooltip("Optional Voice clip for Scene 5 Dialogue 2.")]
         public AudioClip Scene5Dialogue2Clip;
 
+        [Header("Scene 6 Dialogue Configuration")]
+        [Tooltip("First Dialogue text for Scene 6.")]
+        public string Scene6Dialogue1Text = "The secret code is 'heart of India'.";
+
+        [Tooltip("Optional Voice clip for Scene 6 Dialogue 1.")]
+        public AudioClip Scene6Dialogue1Clip;
+
         [Header("Voice Clips (Optional - Synthesized if empty)")]
         [Tooltip("Audio clip for Dialogue 1.")]
         public AudioClip Dialogue1Clip;
@@ -399,6 +406,93 @@ namespace BunkerTools
                 );
             }
             Debug.Log("[MissionCoordinator] Scene 5 dialogue sequence completed.");
+
+            // Transition to Scene 6 after 10 seconds of exploring the arena
+            #if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                StartScene6DialogueSequence();
+            }
+            else
+            #endif
+            {
+                StartCoroutine(TriggerScene6AfterDelayRoutine());
+            }
+        }
+
+        private IEnumerator TriggerScene6AfterDelayRoutine()
+        {
+            yield return new WaitForSeconds(10.0f);
+            StartScene6DialogueSequence();
+        }
+
+        private bool _scene6SequenceStarted = false;
+
+        /// <summary>
+        /// Initiates the Scene 6 (The hint) dialogue sequence.
+        /// </summary>
+        public void StartScene6DialogueSequence()
+        {
+            if (_scene6SequenceStarted) return;
+            _scene6SequenceStarted = true;
+            StartCoroutine(Scene6DialogueSequenceRoutine());
+        }
+
+        private IEnumerator Scene6DialogueSequenceRoutine()
+        {
+            Debug.Log("[MissionCoordinator] Initiating Scene 6 dialogues.");
+
+            // Ensure HUD is visible and faded in
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.SetHUDAlpha(1f);
+            }
+
+            // ============================================
+            // SCENE 6 DIALOGUE 1 SEQUENCE
+            // ============================================
+            PlaySound(_radioStartSFX, 0.45f);
+            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
+
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "TRANSMISSION: ACTIVE", 
+                    Scene6Dialogue1Text, 
+                    HUDTypewriterSpeed, 
+                    _voiceChirpSFX
+                );
+            }
+
+            float dialogue1Duration = 4.0f;
+            if (Scene6Dialogue1Clip != null)
+            {
+                _audioSource.clip = Scene6Dialogue1Clip;
+                _audioSource.Play();
+                dialogue1Duration = Scene6Dialogue1Clip.length;
+            }
+            else
+            {
+                PlaySpeechBeep();
+            }
+
+            float d1TextTime = Scene6Dialogue1Text.Length * HUDTypewriterSpeed;
+            yield return new WaitForSeconds(Mathf.Max(dialogue1Duration, d1TextTime));
+
+            PlaySound(_radioEndSFX, 0.45f);
+            yield return new WaitForSeconds(0.45f);
+
+            // ============================================
+            // RETURN TO OBJECTIVE TRACKING
+            // ============================================
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowObjective(
+                    "PRIORITY OBJECTIVE", 
+                    Scene5ObjectiveText
+                );
+            }
+            Debug.Log("[MissionCoordinator] Scene 6 dialogue sequence completed.");
         }
 
         private void PlaySound(AudioClip clip, float volume)
