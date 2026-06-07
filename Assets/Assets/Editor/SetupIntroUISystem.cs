@@ -83,7 +83,7 @@ namespace BunkerTools
 
             coordinator.Dialogue1Text = "Welcome to mission agent, I am your mission coordinator.";
             coordinator.Dialogue2Text = "There should be a generator and electric switch, power on the Bunker!";
-            coordinator.ObjectiveHUDText = "Locate the generator and power on the Bunker!";
+            coordinator.ObjectiveHUDText = "Locate the electric switch and power on the Bunker!";
             coordinator.HUDTypewriterSpeed = 0.035f;
             EditorUtility.SetDirty(coordinator);
 

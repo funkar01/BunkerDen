@@ -44,7 +44,7 @@ namespace BunkerTools
             MissionCoordinator coordinator = coordGo.AddComponent<MissionCoordinator>();
             coordinator.Dialogue1Text = "Welcome to mission agent, I am your mission coordinator.";
             coordinator.Dialogue2Text = "There should be a generator and electric switch, power on the Bunker!";
-            coordinator.ObjectiveHUDText = "Locate the generator and power on the Bunker!";
+            coordinator.ObjectiveHUDText = "Locate the electric switch and power on the Bunker!";
             coordinator.Scene4Dialogue1Text = "Mind the poisonous gases trapped inside, you need to hurry and find the evidence before your breath runs out";
             coordinator.Scene4Dialogue2Text = "look for the main command room";
             coordinator.Scene4ObjectiveText = "Look for the main command room";

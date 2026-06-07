@@ -20,7 +20,7 @@ namespace BunkerTools
         public string Dialogue2Text = "There should be a generator and electric switch, power on the Bunker!";
 
         [Tooltip("The final objective text shown in the HUD after dialogues conclude.")]
-        public string ObjectiveHUDText = "Locate the generator and power on the Bunker!";
+        public string ObjectiveHUDText = "Locate the electric switch and power on the Bunker!";
 
         [Header("Scene 4 Dialogue Configuration")]
         [Tooltip("First Dialogue text for Scene 4.")]
