@@ -218,12 +218,23 @@ namespace BunkerTools
                     // 5. Unlock controls once transition completes
                     SetPlayerControlsEnabled(true);
                     Debug.Log("[BunkerDen] Mission started. Player controls enabled.");
+
+                    // 6. Trigger coordinator dialogues
+                    if (MissionCoordinator.Instance != null)
+                    {
+                        MissionCoordinator.Instance.StartCoordinatorSequence();
+                    }
                 });
             }
             else
             {
                 // Fallback if fade manager is missing
                 SetPlayerControlsEnabled(true);
+
+                if (MissionCoordinator.Instance != null)
+                {
+                    MissionCoordinator.Instance.StartCoordinatorSequence();
+                }
             }
         }
 
@@ -250,6 +261,34 @@ namespace BunkerTools
                 }
 
                 var playerInput = fpc.GetComponent<UnityEngine.InputSystem.PlayerInput>();
+                if (playerInput != null)
+                {
+                    if (enabledState) playerInput.ActivateInput();
+                    else playerInput.DeactivateInput();
+                }
+            }
+
+            // Toggle StarterAssets ThirdPersonController if present
+            var tpc = FindAnyObjectByType<StarterAssets.ThirdPersonController>();
+            if (tpc != null)
+            {
+                tpc.enabled = enabledState;
+
+                var cc = tpc.GetComponent<CharacterController>();
+                if (cc != null) cc.enabled = enabledState;
+
+                var inputs = tpc.GetComponent<StarterAssets.StarterAssetsInputs>();
+                if (inputs != null)
+                {
+                    inputs.cursorLocked = enabledState;
+                    inputs.cursorInputForLook = enabledState;
+                    inputs.move = Vector2.zero;
+                    inputs.look = Vector2.zero;
+                    inputs.jump = false;
+                    inputs.sprint = false;
+                }
+
+                var playerInput = tpc.GetComponent<UnityEngine.InputSystem.PlayerInput>();
                 if (playerInput != null)
                 {
                     if (enabledState) playerInput.ActivateInput();

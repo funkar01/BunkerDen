@@ -39,7 +39,39 @@ namespace BunkerTools
             introUI.BriefingText = "You are a secret agent serving for the nation, your mission is to explore the old abandoned bunker and retrieve the confidential data which is hidden inside.";
             introUI.TypewriterSpeed = 0.04f;
 
-            Debug.Log("[CinematicIntroBootstrapper] MissionIntroUI dynamically created and configured for runtime play.");
+            // 4. Create and configure the MissionCoordinator
+            GameObject coordGo = new GameObject("MissionCoordinator");
+            MissionCoordinator coordinator = coordGo.AddComponent<MissionCoordinator>();
+            coordinator.Dialogue1Text = "Welcome to mission agent, I am your mission coordinator.";
+            coordinator.Dialogue2Text = "There should be a generator and electric switch, power on the Bunker!";
+            coordinator.ObjectiveHUDText = "Locate the generator and power on the Bunker!";
+            coordinator.HUDTypewriterSpeed = 0.035f;
+
+            // 5. Create and configure the MissionCoordinatorHUD
+            GameObject hudGo = new GameObject("MissionCoordinatorHUD");
+            hudGo.AddComponent<MissionCoordinatorHUD>();
+
+            // 6. Create and configure the BunkerPowerManager
+            GameObject powerGo = new GameObject("BunkerPowerManager");
+            BunkerPowerManager powerManager = powerGo.AddComponent<BunkerPowerManager>();
+            powerManager.IsPowerOn = false; // Start in dark power-off state
+
+            // 7. Locate Tz-ExteriorElectricBox2 and attach BunkerElectricBoxInteraction interaction script
+            GameObject electricBox = GameObject.Find("Tz-ExteriorElectricBox2");
+            if (electricBox != null)
+            {
+                if (electricBox.GetComponent<BunkerElectricBoxInteraction>() == null)
+                {
+                    electricBox.AddComponent<BunkerElectricBoxInteraction>();
+                    Debug.Log("[CinematicIntroBootstrapper] Dynamic BunkerElectricBoxInteraction component attached to Tz-ExteriorElectricBox2.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[CinematicIntroBootstrapper] Tz-ExteriorElectricBox2 not found in scene on start. Proximity/click interaction bootstrap skipped.");
+            }
+
+            Debug.Log("[CinematicIntroBootstrapper] Dynamic intro, coordinator, HUD, and Power Manager initialized successfully for runtime play.");
         }
     }
 }

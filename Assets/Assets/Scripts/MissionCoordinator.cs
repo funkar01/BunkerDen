@@ -1,0 +1,320 @@
+using System;
+using System.Collections;
+using UnityEngine;
+
+namespace BunkerTools
+{
+    /// <summary>
+    /// MissionCoordinator manages the lady coordinator's voice dialogues, radio static transitions,
+    /// and updates the bottom-right HUD to objective states after the fade-in completes.
+    /// </summary>
+    public class MissionCoordinator : MonoBehaviour
+    {
+        public static MissionCoordinator Instance { get; private set; }
+
+        [Header("Dialogue Content Configuration")]
+        [Tooltip("The first dialogue spoken by the coordinator.")]
+        public string Dialogue1Text = "Welcome to mission agent, I am your mission coordinator.";
+
+        [Tooltip("The second dialogue spoken by the coordinator.")]
+        public string Dialogue2Text = "There should be a generator and electric switch, power on the Bunker!";
+
+        [Tooltip("The final objective text shown in the HUD after dialogues conclude.")]
+        public string ObjectiveHUDText = "Locate the generator and power on the Bunker!";
+
+        [Header("Voice Clips (Optional - Synthesized if empty)")]
+        [Tooltip("Audio clip for Dialogue 1.")]
+        public AudioClip Dialogue1Clip;
+
+        [Tooltip("Audio clip for Dialogue 2.")]
+        public AudioClip Dialogue2Clip;
+
+        [Header("Typing Settings")]
+        [Tooltip("Delay in seconds between printed subtitle characters in the HUD.")]
+        public float HUDTypewriterSpeed = 0.035f;
+
+        private AudioSource _audioSource;
+        private AudioClip _radioStartSFX;
+        private AudioClip _radioEndSFX;
+        private AudioClip _voiceChirpSFX;
+        private bool _sequenceStarted = false;
+
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            // Create AudioSource for radio static and dialogues
+            _audioSource = gameObject.AddComponent<AudioSource>();
+            _audioSource.playOnAwake = false;
+            _audioSource.spatialBlend = 0f; // 2D voice presence
+
+            // Procedurally synthesize static sound clips to run natively out-of-the-box
+            InitializeProceduralAudio();
+        }
+
+        /// <summary>
+        /// Initiates the mission coordinator dialogue sequence. 
+        /// Called automatically when the Scene 1 fade-in finishes.
+        /// </summary>
+        public void StartCoordinatorSequence()
+        {
+            if (_sequenceStarted) return;
+            _sequenceStarted = true;
+
+            StartCoroutine(CoordinatorDialogueSequenceRoutine());
+        }
+
+        private IEnumerator CoordinatorDialogueSequenceRoutine()
+        {
+            Debug.Log("[MissionCoordinator] Initiating coordinator dialogues.");
+
+            // Give a short 0.5s pause after the scene has fully faded in to establish presence
+            yield return new WaitForSeconds(0.5f);
+
+            // Ensure HUD is visible
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.SetHUDAlpha(0f);
+                MissionCoordinatorHUD.Instance.FadeInHUD(0.5f);
+                yield return new WaitForSeconds(0.5f);
+            }
+
+            // ============================================
+            // DIALOGUE 1 SEQUENCE
+            // ============================================
+            // 1. Play radio click-on squelch static
+            PlaySound(_radioStartSFX, 0.45f);
+            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
+
+            // 2. Display sub-text in HUD and type it
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "TRANSMISSION: ACTIVE", 
+                    Dialogue1Text, 
+                    HUDTypewriterSpeed, 
+                    _voiceChirpSFX
+                );
+            }
+
+            // 3. Play actual dialogue audio (if provided)
+            float dialogue1Duration = 3.5f;
+            if (Dialogue1Clip != null)
+            {
+                _audioSource.clip = Dialogue1Clip;
+                _audioSource.Play();
+                dialogue1Duration = Dialogue1Clip.length;
+            }
+            else
+            {
+                // Play a brief high-tech beep as fallback vocal cue
+                PlaySpeechBeep();
+            }
+
+            // Wait for dialogue printing and voice audio to finish
+            float d1TextTime = Dialogue1Text.Length * HUDTypewriterSpeed;
+            yield return new WaitForSeconds(Mathf.Max(dialogue1Duration, d1TextTime));
+
+            // 4. Play radio click-off static
+            PlaySound(_radioEndSFX, 0.45f);
+            yield return new WaitForSeconds(0.45f);
+
+            // ============================================
+            // TRANSMISSION PAUSE (2.0s)
+            // ============================================
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                // Set HUD header color to orange to signify radio standby/pause
+                MissionCoordinatorHUD.Instance.ShowTransmission("TRANSMISSION: STANDBY", Dialogue1Text, 0.001f, null);
+            }
+            yield return new WaitForSeconds(2.0f);
+
+            // ============================================
+            // DIALOGUE 2 SEQUENCE
+            // ============================================
+            // 1. Play radio click-on static
+            PlaySound(_radioStartSFX, 0.45f);
+            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
+
+            // 2. Display and print Dialogue 2
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "TRANSMISSION: ACTIVE", 
+                    Dialogue2Text, 
+                    HUDTypewriterSpeed, 
+                    _voiceChirpSFX
+                );
+            }
+
+            // 3. Play actual dialogue audio (if provided)
+            float dialogue2Duration = 4.2f;
+            if (Dialogue2Clip != null)
+            {
+                _audioSource.clip = Dialogue2Clip;
+                _audioSource.Play();
+                dialogue2Duration = Dialogue2Clip.length;
+            }
+            else
+            {
+                PlaySpeechBeep();
+            }
+
+            // Wait for dialogue printing and voice audio to finish
+            float d2TextTime = Dialogue2Text.Length * HUDTypewriterSpeed;
+            yield return new WaitForSeconds(Mathf.Max(dialogue2Duration, d2TextTime));
+
+            // 4. Play radio click-off static
+            PlaySound(_radioEndSFX, 0.45f);
+            yield return new WaitForSeconds(0.45f);
+
+            // ============================================
+            // CONVERT TO OBJECTIVE TRACKING
+            // ============================================
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowObjective(
+                    "PRIORITY OBJECTIVE", 
+                    ObjectiveHUDText
+                );
+            }
+            Debug.Log("[MissionCoordinator] Dialogue sequence completed. Objective HUD active.");
+        }
+
+        private void PlaySound(AudioClip clip, float volume)
+        {
+            if (clip != null)
+            {
+                _audioSource.PlayOneShot(clip, volume);
+            }
+        }
+
+        private void PlaySpeechBeep()
+        {
+            // Plays a procedural transmission tone signifying start of audio
+            AudioClip beep = CreateSineToneClip(420f, 0.18f, 0.35f);
+            PlaySound(beep, 0.4f);
+        }
+
+        #region Procedural Audio Synthesis
+        private void InitializeProceduralAudio()
+        {
+            _radioStartSFX = CreateRadioStartClip();
+            _radioEndSFX = CreateRadioEndClip();
+            _voiceChirpSFX = CreateVoiceChirpClip();
+        }
+
+        private AudioClip CreateRadioStartClip()
+        {
+            int sampleRate = 44100;
+            float duration = 0.35f;
+            int samplesCount = Mathf.CeilToInt(sampleRate * duration);
+            float[] sampleArray = new float[samplesCount];
+
+            System.Random rand = new System.Random();
+
+            for (int i = 0; i < samplesCount; i++)
+            {
+                float t = (float)i / sampleRate;
+
+                // Sharp pop static click at start
+                float click = 0f;
+                if (t < 0.04f)
+                {
+                    click = Mathf.Sin(2f * Mathf.PI * 140f * t) * Mathf.Exp(-130f * t) * 0.75f;
+                }
+
+                // Squelch white noise
+                float noise = ((float)rand.NextDouble() * 2f - 1f) * 0.2f;
+                float noiseEnv = Mathf.Clamp01(1f - (t / duration));
+
+                sampleArray[i] = (click + noise * noiseEnv) * 0.35f;
+            }
+
+            AudioClip clip = AudioClip.Create("RadioStart", samplesCount, 1, sampleRate, false);
+            clip.SetData(sampleArray, 0);
+            return clip;
+        }
+
+        private AudioClip CreateRadioEndClip()
+        {
+            int sampleRate = 44100;
+            float duration = 0.4f;
+            int samplesCount = Mathf.CeilToInt(sampleRate * duration);
+            float[] sampleArray = new float[samplesCount];
+
+            System.Random rand = new System.Random();
+
+            for (int i = 0; i < samplesCount; i++)
+            {
+                float t = (float)i / sampleRate;
+
+                // White noise burst fading out
+                float noise = ((float)rand.NextDouble() * 2f - 1f) * 0.3f;
+                float noiseEnv = Mathf.Exp(-9f * t);
+
+                // Squelch click off at the end
+                float click = 0f;
+                float clickTime = duration - 0.04f;
+                if (t > clickTime)
+                {
+                    float ct = t - clickTime;
+                    click = Mathf.Sin(2f * Mathf.PI * 180f * ct) * Mathf.Exp(-140f * ct) * 0.7f;
+                }
+
+                sampleArray[i] = (noise * noiseEnv + click) * 0.35f;
+            }
+
+            AudioClip clip = AudioClip.Create("RadioEnd", samplesCount, 1, sampleRate, false);
+            clip.SetData(sampleArray, 0);
+            return clip;
+        }
+
+        private AudioClip CreateVoiceChirpClip()
+        {
+            int sampleRate = 44100;
+            float duration = 0.05f;
+            int samplesCount = Mathf.CeilToInt(sampleRate * duration);
+            float[] sampleArray = new float[samplesCount];
+
+            for (int i = 0; i < samplesCount; i++)
+            {
+                float t = (float)i / sampleRate;
+                float env = Mathf.Sin(Mathf.PI * (t / duration)); // Smooth curve
+                float wave = Mathf.Sin(2f * Mathf.PI * 260f * t) * 0.65f + Mathf.Sin(2f * Mathf.PI * 780f * t) * 0.35f;
+                sampleArray[i] = wave * env * 0.15f;
+            }
+
+            AudioClip clip = AudioClip.Create("VoiceChirp", samplesCount, 1, sampleRate, false);
+            clip.SetData(sampleArray, 0);
+            return clip;
+        }
+
+        private AudioClip CreateSineToneClip(float frequency, float duration, float volumeMult)
+        {
+            int sampleRate = 44100;
+            int samplesCount = Mathf.CeilToInt(sampleRate * duration);
+            float[] sampleArray = new float[samplesCount];
+
+            for (int i = 0; i < samplesCount; i++)
+            {
+                float t = (float)i / sampleRate;
+                float envelope = Mathf.Clamp01(1f - (t / duration));
+                sampleArray[i] = Mathf.Sin(2f * Mathf.PI * frequency * t) * envelope * volumeMult;
+            }
+
+            AudioClip clip = AudioClip.Create($"Sine_{frequency}Hz", samplesCount, 1, sampleRate, false);
+            clip.SetData(sampleArray, 0);
+            return clip;
+        }
+        #endregion
+    }
+}

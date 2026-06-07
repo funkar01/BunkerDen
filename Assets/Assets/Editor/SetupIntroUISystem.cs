@@ -65,19 +65,82 @@ namespace BunkerTools
             introUI.TypewriterSpeed = 0.045f;
             EditorUtility.SetDirty(introUI);
 
-            // 3. Mark scene dirty to ensure changes are saved
+            // 3. Create or Find MissionCoordinator
+            MissionCoordinator coordinator = Object.FindAnyObjectByType<MissionCoordinator>();
+            GameObject coordinatorGo;
+            if (coordinator == null)
+            {
+                coordinatorGo = new GameObject("MissionCoordinator");
+                coordinator = coordinatorGo.AddComponent<MissionCoordinator>();
+                Undo.RegisterCreatedObjectUndo(coordinatorGo, "Create MissionCoordinator");
+                Debug.Log("[BunkerTools] Created new MissionCoordinator in scene.");
+            }
+            else
+            {
+                coordinatorGo = coordinator.gameObject;
+                Debug.Log("[BunkerTools] MissionCoordinator already exists in scene.");
+            }
+
+            coordinator.Dialogue1Text = "Welcome to mission agent, I am your mission coordinator.";
+            coordinator.Dialogue2Text = "There should be a generator and electric switch, power on the Bunker!";
+            coordinator.ObjectiveHUDText = "Locate the generator and power on the Bunker!";
+            coordinator.HUDTypewriterSpeed = 0.035f;
+            EditorUtility.SetDirty(coordinator);
+
+            // 4. Create or Find MissionCoordinatorHUD
+            MissionCoordinatorHUD coordinatorHUD = Object.FindAnyObjectByType<MissionCoordinatorHUD>();
+            GameObject coordinatorHUDGo;
+            if (coordinatorHUD == null)
+            {
+                coordinatorHUDGo = new GameObject("MissionCoordinatorHUD");
+                coordinatorHUD = coordinatorHUDGo.AddComponent<MissionCoordinatorHUD>();
+                Undo.RegisterCreatedObjectUndo(coordinatorHUDGo, "Create MissionCoordinatorHUD");
+                Debug.Log("[BunkerTools] Created new MissionCoordinatorHUD in scene.");
+            }
+            else
+            {
+                coordinatorHUDGo = coordinatorHUD.gameObject;
+                Debug.Log("[BunkerTools] MissionCoordinatorHUD already exists in scene.");
+            }
+            EditorUtility.SetDirty(coordinatorHUD);
+
+            // 5. Create or Find BunkerPowerManager
+            BunkerPowerManager powerManager = Object.FindAnyObjectByType<BunkerPowerManager>();
+            GameObject powerManagerGo;
+            if (powerManager == null)
+            {
+                powerManagerGo = new GameObject("BunkerPowerManager");
+                powerManager = powerManagerGo.AddComponent<BunkerPowerManager>();
+                Undo.RegisterCreatedObjectUndo(powerManagerGo, "Create BunkerPowerManager");
+                Debug.Log("[BunkerTools] Created new BunkerPowerManager in scene.");
+            }
+            else
+            {
+                powerManagerGo = powerManager.gameObject;
+                Debug.Log("[BunkerTools] BunkerPowerManager already exists in scene.");
+            }
+            powerManager.IsPowerOn = false; // Start in dark power-off state
+            powerManager.TorchRange = 25f;
+            powerManager.TorchAngle = 30f;
+            powerManager.TorchIntensity = 2975.964f;
+            powerManager.TorchColor = new Color(0.98f, 0.97f, 0.90f, 1f);
+            EditorUtility.SetDirty(powerManager);
+
+            // 6. Mark scene dirty to ensure changes are saved
             EditorSceneManager.MarkSceneDirty(activeScene);
             bool saved = EditorSceneManager.SaveScene(activeScene);
             
             if (saved)
             {
                 EditorUtility.DisplayDialog("Success", 
-                    "Cinematic Intro & Fade System configured successfully!\n\n" +
-                    "- 'ScreenFadeManager' handles smooth transitions.\n" +
-                    "- 'MissionIntroUI' manages briefing overlays.\n\n" +
-                    "Both components are dynamic and self-constructing at runtime.", 
+                    "Cinematic Intro, Fade, Coordinator & Power Manager System configured successfully!\n\n" +
+                    "- 'ScreenFadeManager' handles transitions.\n" +
+                    "- 'MissionIntroUI' manages briefing overlays.\n" +
+                    "- 'MissionCoordinator' plays dialogues & procedural radio static.\n" +
+                    "- 'MissionCoordinatorHUD' displays active transmission & objective status.\n" +
+                    "- 'BunkerPowerManager' controls scene dark-mode, flashlight & objective blinking.", 
                     "Awesome");
-                Debug.Log("[BunkerTools] Cinematic Intro & Fade System configuration saved successfully.");
+                Debug.Log("[BunkerTools] Cinematic Experience System configuration saved successfully.");
             }
             else
             {
