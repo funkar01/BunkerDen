@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Fixed Python script to audit static flags of prefab instances in a Unity scene.",
+  "updatedAt":  "2026-06-06T14:02:27.429348800Z"
+}

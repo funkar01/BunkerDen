@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Python script to audit texture import settings (normal maps, mask maps) in a Unity project.",
+  "updatedAt":  "2026-06-06T14:02:43.903737400Z"
+}

@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Python script to parse ReflectionProbe components in a Unity scene file, checking their modes and refresh settings.",
+  "updatedAt":  "2026-06-06T13:59:57.945697700Z"
+}

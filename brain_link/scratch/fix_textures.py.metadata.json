@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Python script to fix Unity texture meta files, setting correct normal map types and disabling sRGB for mask/data maps.",
+  "updatedAt":  "2026-06-06T14:13:59.136973Z"
+}

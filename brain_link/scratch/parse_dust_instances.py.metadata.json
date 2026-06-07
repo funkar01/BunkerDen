@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Python script to analyze Visual Effect Graph (VFX) components and their GameObject parents in a Unity scene.",
+  "updatedAt":  "2026-06-06T17:41:22.958568200Z"
+}

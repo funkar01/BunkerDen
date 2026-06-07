@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Python script to parse the Unity Editor.log for errors and warnings.",
+  "updatedAt":  "2026-06-06T19:12:10.569356200Z"
+}

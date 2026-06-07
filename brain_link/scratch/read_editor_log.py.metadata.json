@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Python script to read Unity Editor.log tail safely by copying it first.",
+  "updatedAt":  "2026-06-07T08:07:10.459368300Z"
+}

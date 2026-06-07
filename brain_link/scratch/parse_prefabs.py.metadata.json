@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_OTHER",
+  "summary":  "Python script to analyze prefab instances in a Unity scene file, finding their source files via GUIDs.",
+  "updatedAt":  "2026-06-06T13:59:35.260693400Z"
+}

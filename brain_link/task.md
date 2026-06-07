@@ -1,0 +1,22 @@
+# Bunker Simulation Optimization Checklist
+
+- [x] Create Unity Editor helper script for mesh merging
+  - [x] Implement `MeshCombinerEditor.cs` in `Assets/Assets/Editor/`
+- [x] Create dynamic lighting script
+  - [x] Implement `AtmosphericFlicker.cs` script for flickering lights and emissive materials
+- [x] Optimize texture import settings (Normal maps and Mask maps)
+  - [x] Write and run Python script to correct 141 `.meta` texture import files
+- [x] Optimize scene light settings
+  - [x] Write and run Python script to change shadow update modes to "On Demand" in `BunkerScene_v2.unity`
+- [x] Adjust HDRP quality settings
+  - [x] Update `2HDRPMediumQuality.asset` to enable Dynamic Resolution and optimize settings
+- [x] Cinematic Dust Particle System Refresh
+  - [x] Clean up old particle system (scripts, editor windows, scene components)
+  - [x] Create custom unlit particle material `BunkerDustMaterial.mat`
+  - [x] Implement `BunkerDustManager.cs` to configure and track player camera
+  - [x] Add static volume support and `scalingMode = Shape` for manual positioning/scaling
+  - [x] Add `fitToTarget` bounds auto-fitting support and Context Menu functions
+  - [x] Implement `VerifyDustVisibility.cs` editor script for automated playmode screenshot capture
+  - [x] Run verification, analyze screenshot, and confirm dust visibility in Game View
+- [x] Create walkthrough documentation
+  - [x] Update `walkthrough.md` with instructions on how to use the new scripts, materials, and static volume auto-fitting controls
