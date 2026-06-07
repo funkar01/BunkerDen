@@ -30,12 +30,13 @@ namespace BunkerTools
                 EditorApplication.Exit(1);
             }
 
-            // Find or Attach BunkerElectricBoxInteraction (it is attached at runtime by bootstrapper, but we can attach it here for static test)
-            BunkerElectricBoxInteraction interaction = box.GetComponent<BunkerElectricBoxInteraction>();
-            if (interaction == null)
-            {
-                interaction = box.AddComponent<BunkerElectricBoxInteraction>();
-            }
+            // Tag it as ElectricSwitch
+            box.tag = "ElectricSwitch";
+
+            // Spawn a mock player GameObject with PlayerInteractionHandler
+            GameObject mockPlayer = new GameObject("Player");
+            mockPlayer.tag = "Player";
+            PlayerInteractionHandler interaction = mockPlayer.AddComponent<PlayerInteractionHandler>();
 
             // Find Power Manager (attached at runtime by bootstrapper, so we create it here for the scene context)
             BunkerPowerManager powerManager = Object.FindAnyObjectByType<BunkerPowerManager>();
@@ -55,21 +56,20 @@ namespace BunkerTools
             {
                 backingField.SetValue(null, powerManager);
             }
+
+            Debug.Log("[VERIFICATION] Simulating proximity trigger enter with 'ElectricSwitch' tagged object...");
             
-            Debug.Log("[VERIFICATION] Simulating proximity trigger enter...");
-            
-            // Force the power sequence activation directly to verify integration
-            // We use reflection to invoke the private RestorePowerSequence method
-            var method = typeof(BunkerElectricBoxInteraction).GetMethod("RestorePowerSequence", 
+            // Force the power sequence activation by invoking the private CheckAndRestorePower method via reflection
+            var method = typeof(PlayerInteractionHandler).GetMethod("CheckAndRestorePower", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             
             if (method == null)
             {
-                Debug.LogError("[VERIFICATION] RestorePowerSequence method not found on interaction script!");
+                Debug.LogError("[VERIFICATION] CheckAndRestorePower method not found on PlayerInteractionHandler script!");
                 EditorApplication.Exit(1);
             }
 
-            method.Invoke(interaction, null);
+            method.Invoke(interaction, new object[] { box });
 
             // Validate that power has turned ON
             if (powerManager.IsPowerOn)
@@ -109,7 +109,10 @@ namespace BunkerTools
                 Debug.LogWarning("[VERIFICATION] No generator GameObject found in scene to verify audio source on.");
             }
 
-            Debug.Log("[VERIFICATION] All static trigger verification checks passed successfully!");
+            // Clean up temporary mock player
+            Object.DestroyImmediate(mockPlayer);
+
+            Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger verification checks passed successfully!");
             EditorApplication.Exit(0);
         }
     }

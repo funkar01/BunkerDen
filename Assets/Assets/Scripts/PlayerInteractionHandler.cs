@@ -5,97 +5,78 @@ using UnityEngine;
 namespace BunkerTools
 {
     /// <summary>
-    /// BunkerElectricBoxInteraction is attached to Tz-ExteriorElectricBox2.
-    /// It detects the player entering its trigger collider and automatically initiates
-    /// the generator, lighting restoration, and displays HUD feedback without clicking.
+    /// PlayerInteractionHandler handles collision and trigger events on the player.
+    /// It detects hits on objects tagged "ElectricSwitch" and restores the bunker's electrical systems
+    /// while printing the confirmation message to the HUD.
     /// </summary>
-    public class BunkerElectricBoxInteraction : MonoBehaviour
+    public class PlayerInteractionHandler : MonoBehaviour
     {
         private bool _triggered = false;
         private AudioClip _voiceChirpSFX;
 
         private void Start()
         {
-            // Add a Rigidbody and set it to kinematic to guarantee trigger events fire reliably
-            Rigidbody rb = gameObject.GetComponent<Rigidbody>();
-            if (rb == null)
-            {
-                rb = gameObject.AddComponent<Rigidbody>();
-            }
-            rb.isKinematic = true;
-            rb.useGravity = false;
-
-            // Ensure the existing BoxCollider is configured as a trigger
-            BoxCollider col = gameObject.GetComponent<BoxCollider>();
-            if (col != null)
-            {
-                col.isTrigger = true;
-            }
-
-            // Procedurally synthesize a short radio/voice chirp clip for HUD dialogue audio feedback
             _voiceChirpSFX = CreateVoiceChirpClip();
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            // Only trigger once when the power is off
-            if (!_triggered && BunkerPowerManager.Instance != null && !BunkerPowerManager.Instance.IsPowerOn)
+            CheckAndRestorePower(other.gameObject);
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            CheckAndRestorePower(collision.gameObject);
+        }
+
+        private void CheckAndRestorePower(GameObject targetGo)
+        {
+            if (_triggered) return;
+
+            // Detect collision/trigger with game object having tag "ElectricSwitch"
+            if (targetGo.CompareTag("ElectricSwitch"))
             {
-                // Verify if the entering collider is the player
-                if (other.CompareTag("Player") || 
-                    other.GetComponentInParent<StarterAssets.FirstPersonController>() != null || 
-                    other.GetComponentInParent<StarterAssets.ThirdPersonController>() != null)
+                _triggered = true;
+                Debug.Log($"[PlayerInteractionHandler] Collision/Trigger with tagged 'ElectricSwitch' object '{targetGo.name}' detected.");
+
+                // 1. Play heavy mechanical/industrial click switch sound at the switch position
+                PlaySwitchClickSFX(targetGo);
+
+                // 2. Restore all lights, flickers, and sound effects via the Power Manager
+                if (BunkerPowerManager.Instance != null)
                 {
-                    RestorePowerSequence();
+                    BunkerPowerManager.Instance.RestorePower();
+                }
+
+                // 3. Display completion dialogue message on the HUD
+                if (MissionCoordinatorHUD.Instance != null)
+                {
+                    MissionCoordinatorHUD.Instance.ShowTransmission(
+                        "COORDINATOR", 
+                        "Well done, power is switched ON!", 
+                        0.035f, 
+                        _voiceChirpSFX
+                    );
+                    StartCoroutine(CompleteObjectiveRoutine());
                 }
             }
         }
 
-        private void RestorePowerSequence()
-        {
-            _triggered = true;
-            Debug.Log("[BunkerElectricBoxInteraction] Player triggered electric box collider. Restoring power.");
-
-            // 1. Play heavy mechanical/industrial click switch sound
-            PlaySwitchClickSFX();
-
-            // 2. Trigger the power restoration via the Power Manager
-            if (BunkerPowerManager.Instance != null)
-            {
-                BunkerPowerManager.Instance.RestorePower();
-            }
-
-            // 3. Update HUD to transmission dialogue and then transition to completion state
-            if (MissionCoordinatorHUD.Instance != null)
-            {
-                MissionCoordinatorHUD.Instance.ShowTransmission(
-                    "COORDINATOR", 
-                    "Well done, the power is on!", 
-                    0.035f, 
-                    _voiceChirpSFX
-                );
-                StartCoroutine(CompleteObjectiveRoutine());
-            }
-
-            // 4. Disable this component to prevent duplicate runs
-            enabled = false;
-        }
-
         private IEnumerator CompleteObjectiveRoutine()
         {
-            // Wait for dialogue typing to complete (approx 1.2 seconds)
+            // Wait for dialogue printing to finish (approx 1.5s)
             yield return new WaitForSeconds(1.5f);
             if (MissionCoordinatorHUD.Instance != null)
             {
                 MissionCoordinatorHUD.Instance.ShowObjective(
                     "OBJECTIVE COMPLETED", 
-                    "Well done, the power is on!"
+                    "Well done, power is switched ON!"
                 );
                 MissionCoordinatorHUD.Instance.FadeOutHUD(3.0f);
             }
         }
 
-        private void PlaySwitchClickSFX()
+        private void PlaySwitchClickSFX(GameObject targetGo)
         {
             int sampleRate = 44100;
             float duration = 0.25f;
@@ -106,7 +87,7 @@ namespace BunkerTools
             for (int i = 0; i < samplesCount; i++)
             {
                 float t = (float)i / sampleRate;
-                // Heavy mechanical switch sound
+                // Mechanical clang switch sound
                 float click = Mathf.Sin(2f * Mathf.PI * 90f * t) * Mathf.Exp(-35f * t) * 0.6f;
                 float metallicClang = Mathf.Sin(2f * Mathf.PI * 450f * t) * Mathf.Exp(-80f * t) * 0.3f;
                 float noise = ((float)rand.NextDouble() * 2f - 1f) * 0.15f * Mathf.Exp(-120f * t);
@@ -116,9 +97,9 @@ namespace BunkerTools
             AudioClip clip = AudioClip.Create("SwitchClick", samplesCount, 1, sampleRate, false);
             clip.SetData(sampleArray, 0);
 
-            AudioSource source = gameObject.AddComponent<AudioSource>();
+            AudioSource source = targetGo.AddComponent<AudioSource>();
             source.clip = clip;
-            source.spatialBlend = 1.0f; // 3D
+            source.spatialBlend = 1.0f; // 3D sound
             source.minDistance = 1.0f;
             source.maxDistance = 12.0f;
             source.volume = 0.8f;

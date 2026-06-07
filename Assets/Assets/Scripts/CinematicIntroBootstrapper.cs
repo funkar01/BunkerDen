@@ -56,22 +56,67 @@ namespace BunkerTools
             BunkerPowerManager powerManager = powerGo.AddComponent<BunkerPowerManager>();
             powerManager.IsPowerOn = false; // Start in dark power-off state
 
-            // 7. Locate Tz-ExteriorElectricBox2 and attach BunkerElectricBoxInteraction interaction script
+            // 7. Locate Tz-ExteriorElectricBox2, tag it as "ElectricSwitch", and configure its trigger collider
             GameObject electricBox = GameObject.Find("Tz-ExteriorElectricBox2");
             if (electricBox != null)
             {
-                if (electricBox.GetComponent<BunkerElectricBoxInteraction>() == null)
+                electricBox.tag = "ElectricSwitch";
+                
+                BoxCollider col = electricBox.GetComponent<BoxCollider>();
+                if (col == null)
                 {
-                    electricBox.AddComponent<BunkerElectricBoxInteraction>();
-                    Debug.Log("[CinematicIntroBootstrapper] Dynamic BunkerElectricBoxInteraction component attached to Tz-ExteriorElectricBox2.");
+                    col = electricBox.AddComponent<BoxCollider>();
                 }
+                col.isTrigger = true;
+
+                Rigidbody rb = electricBox.GetComponent<Rigidbody>();
+                if (rb == null)
+                {
+                    rb = electricBox.AddComponent<Rigidbody>();
+                }
+                rb.isKinematic = true;
+                rb.useGravity = false;
+
+                Debug.Log("[CinematicIntroBootstrapper] Tz-ExteriorElectricBox2 tagged as 'ElectricSwitch' and configured as trigger.");
             }
             else
             {
-                Debug.LogWarning("[CinematicIntroBootstrapper] Tz-ExteriorElectricBox2 not found in scene on start. Proximity/click interaction bootstrap skipped.");
+                Debug.LogWarning("[CinematicIntroBootstrapper] Tz-ExteriorElectricBox2 not found on start.");
             }
 
+            // 8. Attach PlayerInteractionHandler to the player character dynamically
+            AttachPlayerInteractionHandler();
+
             Debug.Log("[CinematicIntroBootstrapper] Dynamic intro, coordinator, HUD, and Power Manager initialized successfully for runtime play.");
+        }
+
+        private static void AttachPlayerInteractionHandler()
+        {
+            // First Person Player
+            var fpc = Object.FindAnyObjectByType<StarterAssets.FirstPersonController>();
+            if (fpc != null)
+            {
+                if (fpc.GetComponent<PlayerInteractionHandler>() == null)
+                {
+                    fpc.gameObject.AddComponent<PlayerInteractionHandler>();
+                    Debug.Log($"[CinematicIntroBootstrapper] Attached PlayerInteractionHandler to FirstPersonPlayer: {fpc.name}");
+                }
+                return;
+            }
+
+            // Third Person Player
+            var tpc = Object.FindAnyObjectByType<StarterAssets.ThirdPersonController>();
+            if (tpc != null)
+            {
+                if (tpc.GetComponent<PlayerInteractionHandler>() == null)
+                {
+                    tpc.gameObject.AddComponent<PlayerInteractionHandler>();
+                    Debug.Log($"[CinematicIntroBootstrapper] Attached PlayerInteractionHandler to ThirdPersonPlayer: {tpc.name}");
+                }
+                return;
+            }
+
+            Debug.LogWarning("[CinematicIntroBootstrapper] No player controller found on start. PlayerInteractionHandler could not be attached.");
         }
     }
 }
