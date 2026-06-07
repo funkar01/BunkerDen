@@ -511,6 +511,12 @@ namespace BunkerTools
         private bool _scene7SequenceStarted = false;
 
         /// <summary>
+        /// Gets whether Scene 6 is currently active (Scene 6 started but Scene 7 has not).
+        /// </summary>
+        public bool IsScene6Active => _scene6SequenceStarted && !_scene7SequenceStarted;
+
+
+        /// <summary>
         /// Initiates the Scene 7 (Emergency Button hint) dialogue sequence.
         /// </summary>
         public void StartScene7DialogueSequence()

@@ -177,6 +177,12 @@ namespace BunkerTools
         {
             if (_mapTriggered) return;
 
+            // Only allow map trigger during Scene 6
+            if (MissionCoordinator.Instance != null && !MissionCoordinator.Instance.IsScene6Active)
+            {
+                return;
+            }
+
             // Detect collision/trigger with game object having tag "Map"
             if (targetGo.CompareTag("Map"))
             {

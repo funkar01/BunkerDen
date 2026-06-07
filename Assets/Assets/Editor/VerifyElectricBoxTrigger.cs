@@ -21,6 +21,16 @@ namespace BunkerTools
             }
 
             Debug.Log("[VERIFICATION] Finding components...");
+
+            // Temporarily rename scene-loaded active/inactive targets to prevent conflicts with our mocks during validation
+            GameObject sceneCmdRoomHL = FindActiveOrInactive("Highlighter_CommandRoom");
+            if (sceneCmdRoomHL != null) sceneCmdRoomHL.name = "Highlighter_CommandRoom_Temp";
+
+            GameObject sceneIndiaMapHL = FindActiveOrInactive("Highlighter_IndiaMap");
+            if (sceneIndiaMapHL != null) sceneIndiaMapHL.name = "Highlighter_IndiaMap_Temp";
+
+            GameObject sceneLockerHL = FindActiveOrInactive("Highlighter_Locker");
+            if (sceneLockerHL != null) sceneLockerHL.name = "Highlighter_Locker_Temp";
             
             // Find Electric Box
             GameObject box = GameObject.Find("Tz-ExteriorElectricBox2");
@@ -217,6 +227,14 @@ namespace BunkerTools
             GameObject mockLockerHL = new GameObject("Highlighter_Locker");
             mockLockerHL.SetActive(false);
 
+            // Set Scene 6 active via reflection to bypass scene guard
+            var scene6Field = typeof(MissionCoordinator).GetField("_scene6SequenceStarted", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (scene6Field != null)
+            {
+                scene6Field.SetValue(coordinator, true);
+            }
+
             // Verify Map trigger via reflection
             var mapMethod = typeof(PlayerInteractionHandler).GetMethod("CheckMapTrigger", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -259,8 +277,36 @@ namespace BunkerTools
             Object.DestroyImmediate(mockIndiaMapHL);
             Object.DestroyImmediate(mockLockerHL);
 
+            // Restore original object names
+            if (sceneCmdRoomHL != null) sceneCmdRoomHL.name = "Highlighter_CommandRoom";
+            if (sceneIndiaMapHL != null) sceneIndiaMapHL.name = "Highlighter_IndiaMap";
+            if (sceneLockerHL != null) sceneLockerHL.name = "Highlighter_Locker";
+
             Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger, Scene 4, Scene 5, Scene 6, and Scene 7 verification checks passed successfully!");
             EditorApplication.Exit(0);
+        }
+
+        private static GameObject FindActiveOrInactive(string name)
+        {
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (!scene.isLoaded) return null;
+            foreach (var root in scene.GetRootGameObjects())
+            {
+                GameObject match = FindInChildren(root.transform, name);
+                if (match != null) return match;
+            }
+            return null;
+        }
+
+        private static GameObject FindInChildren(Transform parent, string name)
+        {
+            if (parent.name == name) return parent.gameObject;
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                GameObject match = FindInChildren(parent.GetChild(i), name);
+                if (match != null) return match;
+            }
+            return null;
         }
     }
 }
