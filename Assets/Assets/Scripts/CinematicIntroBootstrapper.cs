@@ -48,6 +48,9 @@ namespace BunkerTools
             coordinator.Scene4Dialogue1Text = "Mind the poisonous gases trapped inside, you need to hurry and find the evidence before your breath runs out";
             coordinator.Scene4Dialogue2Text = "look for the main command room";
             coordinator.Scene4ObjectiveText = "Look for the main command room";
+            coordinator.Scene5Dialogue1Text = "You've made it to the main command room! Find the central mainframe terminal.";
+            coordinator.Scene5Dialogue2Text = "Access the terminal and download the encrypted files before your air supply runs out.";
+            coordinator.Scene5ObjectiveText = "Access the mainframe terminal and download the files";
             coordinator.HUDTypewriterSpeed = 0.035f;
 
             // 5. Create and configure the MissionCoordinatorHUD

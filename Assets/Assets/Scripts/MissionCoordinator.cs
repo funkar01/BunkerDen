@@ -38,6 +38,22 @@ namespace BunkerTools
         [Tooltip("Optional Voice clip for Scene 4 Dialogue 2.")]
         public AudioClip Scene4Dialogue2Clip;
 
+        [Header("Scene 5 Dialogue Configuration")]
+        [Tooltip("First Dialogue text for Scene 5.")]
+        public string Scene5Dialogue1Text = "You've made it to the main command room! Find the central mainframe terminal.";
+        
+        [Tooltip("Second Dialogue text for Scene 5.")]
+        public string Scene5Dialogue2Text = "Access the terminal and download the encrypted files before your air supply runs out.";
+
+        [Tooltip("Objective text for Scene 5.")]
+        public string Scene5ObjectiveText = "Access the mainframe terminal and download the files";
+        
+        [Tooltip("Optional Voice clip for Scene 5 Dialogue 1.")]
+        public AudioClip Scene5Dialogue1Clip;
+
+        [Tooltip("Optional Voice clip for Scene 5 Dialogue 2.")]
+        public AudioClip Scene5Dialogue2Clip;
+
         [Header("Voice Clips (Optional - Synthesized if empty)")]
         [Tooltip("Audio clip for Dialogue 1.")]
         public AudioClip Dialogue1Clip;
@@ -311,6 +327,118 @@ namespace BunkerTools
                 );
             }
             Debug.Log("[MissionCoordinator] Scene 4 dialogue sequence completed.");
+        }
+
+        private bool _scene5SequenceStarted = false;
+
+        /// <summary>
+        /// Initiates the Scene 5 (Command Room reached) dialogue sequence.
+        /// </summary>
+        public void StartScene5DialogueSequence()
+        {
+            if (_scene5SequenceStarted) return;
+            _scene5SequenceStarted = true;
+            StartCoroutine(Scene5DialogueSequenceRoutine());
+        }
+
+        private IEnumerator Scene5DialogueSequenceRoutine()
+        {
+            Debug.Log("[MissionCoordinator] Initiating Scene 5 dialogues.");
+
+            // Ensure HUD is visible and faded in
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.SetHUDAlpha(1f);
+            }
+
+            // ============================================
+            // SCENE 5 DIALOGUE 1 SEQUENCE
+            // ============================================
+            PlaySound(_radioStartSFX, 0.45f);
+            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
+
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "TRANSMISSION: ACTIVE", 
+                    Scene5Dialogue1Text, 
+                    HUDTypewriterSpeed, 
+                    _voiceChirpSFX
+                );
+            }
+
+            float dialogue1Duration = 4.0f;
+            if (Scene5Dialogue1Clip != null)
+            {
+                _audioSource.clip = Scene5Dialogue1Clip;
+                _audioSource.Play();
+                dialogue1Duration = Scene5Dialogue1Clip.length;
+            }
+            else
+            {
+                PlaySpeechBeep();
+            }
+
+            float d1TextTime = Scene5Dialogue1Text.Length * HUDTypewriterSpeed;
+            yield return new WaitForSeconds(Mathf.Max(dialogue1Duration, d1TextTime));
+
+            PlaySound(_radioEndSFX, 0.45f);
+            yield return new WaitForSeconds(0.45f);
+
+            // ============================================
+            // TRANSMISSION STANDBY (1.5s)
+            // ============================================
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission("TRANSMISSION: STANDBY", Scene5Dialogue1Text, 0.001f, null);
+            }
+            yield return new WaitForSeconds(1.5f);
+
+            // ============================================
+            // SCENE 5 DIALOGUE 2 SEQUENCE
+            // ============================================
+            PlaySound(_radioStartSFX, 0.45f);
+            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
+
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "TRANSMISSION: ACTIVE", 
+                    Scene5Dialogue2Text, 
+                    HUDTypewriterSpeed, 
+                    _voiceChirpSFX
+                );
+            }
+
+            float dialogue2Duration = 4.0f;
+            if (Scene5Dialogue2Clip != null)
+            {
+                _audioSource.clip = Scene5Dialogue2Clip;
+                _audioSource.Play();
+                dialogue2Duration = Scene5Dialogue2Clip.length;
+            }
+            else
+            {
+                PlaySpeechBeep();
+            }
+
+            float d2TextTime = Scene5Dialogue2Text.Length * HUDTypewriterSpeed;
+            yield return new WaitForSeconds(Mathf.Max(dialogue2Duration, d2TextTime));
+
+            PlaySound(_radioEndSFX, 0.45f);
+            yield return new WaitForSeconds(0.45f);
+
+            // ============================================
+            // CONVERT TO OBJECTIVE TRACKING
+            // ============================================
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowObjective(
+                    "PRIORITY OBJECTIVE", 
+                    Scene5ObjectiveText
+                );
+            }
+            Debug.Log("[MissionCoordinator] Scene 5 dialogue sequence completed.");
         }
 
         private void PlaySound(AudioClip clip, float volume)

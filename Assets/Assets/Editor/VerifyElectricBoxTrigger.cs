@@ -141,10 +141,59 @@ namespace BunkerTools
                 EditorApplication.Exit(1);
             }
 
+            // Configure default Scene 5 values for validation
+            coordinator.Scene5Dialogue1Text = "You've made it to the main command room! Find the central mainframe terminal.";
+            coordinator.Scene5Dialogue2Text = "Access the terminal and download the encrypted files before your air supply runs out.";
+            coordinator.Scene5ObjectiveText = "Access the mainframe terminal and download the files";
+
+            // Create a mock CommandRoom GameObject
+            GameObject mockCommandRoom = new GameObject("MockCommandRoom");
+            mockCommandRoom.tag = "CommandRoom";
+
+            // Create a mock Highlighter_CommandRoom GameObject
+            GameObject mockHighlighter = new GameObject("Highlighter_CommandRoom");
+            mockHighlighter.SetActive(true);
+
+            // Verify CommandRoom trigger via reflection
+            var cmdRoomMethod = typeof(PlayerInteractionHandler).GetMethod("CheckCommandRoomTrigger", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (cmdRoomMethod == null)
+            {
+                Debug.LogError("[VERIFICATION] CheckCommandRoomTrigger method not found on PlayerInteractionHandler script!");
+                EditorApplication.Exit(1);
+            }
+
+            cmdRoomMethod.Invoke(interaction, new object[] { mockCommandRoom });
+
+            // Validate that Highlighter_CommandRoom was disabled
+            if (!mockHighlighter.activeSelf)
+            {
+                Debug.Log("[VERIFICATION] SUCCESS: Highlighter_CommandRoom was successfully disabled upon trigger.");
+            }
+            else
+            {
+                Debug.LogError("[VERIFICATION] FAILURE: Highlighter_CommandRoom was not disabled!");
+                EditorApplication.Exit(1);
+            }
+
+            // Validate Scene 5 configurations
+            if (coordinator.Scene5Dialogue1Text.Contains("mainframe") && coordinator.Scene5Dialogue2Text.Contains("encrypted files"))
+            {
+                Debug.Log("[VERIFICATION] SUCCESS: Scene 5 dialogue configuration validated correctly.");
+            }
+            else
+            {
+                Debug.LogError("[VERIFICATION] FAILURE: Scene 5 dialogue configurations are invalid!");
+                EditorApplication.Exit(1);
+            }
+
             // Clean up temporary objects
             Object.DestroyImmediate(mockPlayer);
+            Object.DestroyImmediate(mockCommandRoom);
+            Object.DestroyImmediate(mockHighlighter);
 
-            Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger and Scene 4 verification checks passed successfully!");
+            Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger, Scene 4, and Scene 5 verification checks passed successfully!");
             EditorApplication.Exit(0);
         }
     }

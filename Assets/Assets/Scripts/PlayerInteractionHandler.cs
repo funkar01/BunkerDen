@@ -12,6 +12,7 @@ namespace BunkerTools
     public class PlayerInteractionHandler : MonoBehaviour
     {
         private bool _triggered = false;
+        private bool _commandRoomTriggered = false;
         private AudioClip _voiceChirpSFX;
 
         private void Start()
@@ -22,11 +23,13 @@ namespace BunkerTools
         private void OnTriggerEnter(Collider other)
         {
             CheckAndRestorePower(other.gameObject);
+            CheckCommandRoomTrigger(other.gameObject);
         }
 
         private void OnCollisionEnter(Collision collision)
         {
             CheckAndRestorePower(collision.gameObject);
+            CheckCommandRoomTrigger(collision.gameObject);
         }
 
         private void CheckAndRestorePower(GameObject targetGo)
@@ -58,6 +61,36 @@ namespace BunkerTools
                         _voiceChirpSFX
                     );
                     StartCoroutine(CompleteObjectiveRoutine());
+                }
+            }
+        }
+
+        private void CheckCommandRoomTrigger(GameObject targetGo)
+        {
+            if (_commandRoomTriggered) return;
+
+            // Detect collision/trigger with game object having tag "CommandRoom"
+            if (targetGo.CompareTag("CommandRoom"))
+            {
+                _commandRoomTriggered = true;
+                Debug.Log($"[PlayerInteractionHandler] Collision/Trigger with tagged 'CommandRoom' object '{targetGo.name}' detected.");
+
+                // Disable the "Highlighter_CommandRoom" object
+                GameObject commandRoomHL = GameObject.Find("Highlighter_CommandRoom");
+                if (commandRoomHL != null)
+                {
+                    commandRoomHL.SetActive(false);
+                    Debug.Log("[PlayerInteractionHandler] Highlighter_CommandRoom disabled.");
+                }
+                else
+                {
+                    Debug.LogWarning("[PlayerInteractionHandler] Highlighter_CommandRoom not found in scene.");
+                }
+
+                // Initiate the Scene 4 to Scene 5 transition
+                if (MissionCoordinator.Instance != null)
+                {
+                    MissionCoordinator.Instance.StartScene5DialogueSequence();
                 }
             }
         }
