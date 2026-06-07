@@ -345,6 +345,9 @@ namespace BunkerTools
         {
             Debug.Log("[MissionCoordinator] Initiating Scene 5 dialogues.");
 
+            // Wait a couple of seconds of gap after trigger
+            yield return new WaitForSeconds(2.0f);
+
             // Ensure HUD is visible and faded in
             if (MissionCoordinatorHUD.Instance != null)
             {
