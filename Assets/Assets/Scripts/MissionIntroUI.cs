@@ -47,10 +47,13 @@ namespace BunkerTools
         public Image EnterButtonImage;
         public Text EnterButtonText;
 
+        public static MissionIntroUI Instance { get; private set; }
+
         // State trackers
         private bool _typewriterDone = false;
         private bool _transitionStarted = false;
         private bool _introFinished = false;
+        private bool _isEndScreen = false;
         private Coroutine _typewriterCoroutine;
 
         // Generated audio clips
@@ -61,6 +64,10 @@ namespace BunkerTools
 
         private void Awake()
         {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
             // Synthesize audio clips if none are provided
             InitializeSyntheticAudio();
         }
@@ -112,6 +119,17 @@ namespace BunkerTools
         /// </summary>
         public void OnButtonClicked()
         {
+            if (_isEndScreen)
+            {
+                PlaySound(ClickSound != null ? ClickSound : _syntheticClick, 0.5f);
+                #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+                #else
+                Application.Quit();
+                #endif
+                return;
+            }
+
             if (!_typewriterDone)
             {
                 // Instant skip: fill out the text immediately
@@ -625,6 +643,63 @@ namespace BunkerTools
             AudioClip clip = AudioClip.Create("CinematicChime", samplesCount, 1, sampleRate, false);
             clip.SetData(sampleArray, 0);
             return clip;
+        }
+
+        /// <summary>
+        /// Displays the glassmorphic Mission Complete UI screen overlay and locks controls.
+        /// </summary>
+        public void ShowMissionEndUI()
+        {
+            _isEndScreen = true;
+            _typewriterDone = true;
+
+            // Disable controls and show cursor
+            SetPlayerControlsEnabled(false);
+
+            // Configure End UI Text
+            HeaderTitle = "MISSION COMPLETE";
+            SubHeader = "OPERATION SUCCESSFUL";
+            BriefingText = "Congratulations agent, you have successfully retrieved the confidential key and escaped the bunker safely. Return to headquarters immediately.";
+
+            if (TitleTextComponent != null) TitleTextComponent.text = HeaderTitle;
+            if (SubHeaderComponent != null)
+            {
+                SubHeaderComponent.text = SubHeader;
+                SubHeaderComponent.color = new Color(0.4f, 1f, 0.98f, 1f); // Make subheader teal/green instead of red
+            }
+            if (BodyTextComponent != null) BodyTextComponent.text = BriefingText;
+            if (EnterButtonText != null) EnterButtonText.text = "CLOSE GAME";
+
+            // Reset button visuals in case it was left hovered
+            if (EnterButtonImage != null)
+            {
+                var effects = EnterButtonImage.GetComponent<MissionButtonEffects>();
+                if (effects != null)
+                {
+                    effects.ResetButtonState();
+                }
+            }
+
+            // Reactivate the UI panel
+            if (IntroCanvasGroup != null)
+            {
+                IntroCanvasGroup.gameObject.SetActive(true);
+                IntroCanvasGroup.alpha = 0f;
+                StartCoroutine(FadeInEndCanvasRoutine());
+            }
+        }
+
+        private IEnumerator FadeInEndCanvasRoutine()
+        {
+            float elapsed = 0f;
+            float duration = 0.5f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                IntroCanvasGroup.alpha = Mathf.Lerp(0f, 1f, elapsed / duration);
+                yield return null;
+            }
+            IntroCanvasGroup.alpha = 1f;
         }
         #endregion
     }

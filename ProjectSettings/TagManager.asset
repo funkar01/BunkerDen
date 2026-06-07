@@ -9,6 +9,7 @@ TagManager:
   - CommandRoom
   - Map
   - Locker
+  - Exit
   layers:
   - Default
   - TransparentFX

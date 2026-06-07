@@ -34,6 +34,9 @@ namespace BunkerTools
 
             GameObject sceneLockerDoor = FindActiveOrInactive("LockerDoorB");
             if (sceneLockerDoor != null) sceneLockerDoor.name = "LockerDoorB_Temp";
+
+            GameObject sceneExitDoor = FindActiveOrInactive("ExitDoor");
+            if (sceneExitDoor != null) sceneExitDoor.name = "ExitDoor_Temp";
             
             // Find Electric Box
             GameObject box = GameObject.Find("Tz-ExteriorElectricBox2");
@@ -299,6 +302,11 @@ namespace BunkerTools
                 scene7Field.SetValue(coordinator, true);
             }
 
+            // Create mock ExitDoor (initially inactive)
+            GameObject mockExitDoor = new GameObject("ExitDoor");
+            mockExitDoor.tag = "Exit";
+            mockExitDoor.SetActive(false);
+
             // Verify Locker trigger via reflection
             var lockerMethod = typeof(PlayerInteractionHandler).GetMethod("CheckLockerTrigger", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -322,6 +330,17 @@ namespace BunkerTools
                 EditorApplication.Exit(1);
             }
 
+            // Validate that ExitDoor was activated upon locker trigger
+            if (mockExitDoor.activeSelf)
+            {
+                Debug.Log("[VERIFICATION] SUCCESS: ExitDoor was successfully activated upon locker trigger.");
+            }
+            else
+            {
+                Debug.LogError("[VERIFICATION] FAILURE: ExitDoor was not activated!");
+                EditorApplication.Exit(1);
+            }
+
             // Validate Scene 8 configurations
             if (coordinator.Scene8Dialogue1Text.Contains("ASAP") && coordinator.Scene8ObjectiveText.Contains("quickly"))
             {
@@ -333,6 +352,49 @@ namespace BunkerTools
                 EditorApplication.Exit(1);
             }
 
+            // Verify Exit trigger via reflection
+            var exitMethod = typeof(PlayerInteractionHandler).GetMethod("CheckExitTrigger", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (exitMethod == null)
+            {
+                Debug.LogError("[VERIFICATION] CheckExitTrigger method not found on PlayerInteractionHandler script!");
+                EditorApplication.Exit(1);
+            }
+
+            // Create mock MissionIntroUI and assign it as Instance via reflection
+            GameObject mockUIGo = new GameObject("MissionIntroUI");
+            MissionIntroUI mockUI = mockUIGo.AddComponent<MissionIntroUI>();
+            var uiBackingField = typeof(MissionIntroUI).GetField("<Instance>k__BackingField", 
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            if (uiBackingField != null)
+            {
+                uiBackingField.SetValue(null, mockUI);
+            }
+
+            // Invoke CheckExitTrigger
+            exitMethod.Invoke(interaction, new object[] { mockExitDoor });
+
+            // Check that isEndScreen was set to true on the mock UI
+            var isEndScreenField = typeof(MissionIntroUI).GetField("_isEndScreen", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (isEndScreenField == null)
+            {
+                Debug.LogError("[VERIFICATION] _isEndScreen field not found on MissionIntroUI script!");
+                EditorApplication.Exit(1);
+            }
+
+            bool isEndScreen = (bool)isEndScreenField.GetValue(mockUI);
+            if (isEndScreen)
+            {
+                Debug.Log("[VERIFICATION] SUCCESS: Mission end UI was successfully triggered upon exit collision.");
+            }
+            else
+            {
+                Debug.LogError("[VERIFICATION] FAILURE: Mission end UI was not triggered!");
+                EditorApplication.Exit(1);
+            }
+
             // Clean up temporary objects
             Object.DestroyImmediate(mockPlayer);
             Object.DestroyImmediate(mockCommandRoom);
@@ -341,12 +403,15 @@ namespace BunkerTools
             Object.DestroyImmediate(mockIndiaMapHL);
             Object.DestroyImmediate(mockLockerHL);
             Object.DestroyImmediate(mockLockerDoor);
+            Object.DestroyImmediate(mockExitDoor);
+            Object.DestroyImmediate(mockUIGo);
 
             // Restore original object names
             if (sceneCmdRoomHL != null) sceneCmdRoomHL.name = "Highlighter_CommandRoom";
             if (sceneIndiaMapHL != null) sceneIndiaMapHL.name = "Highlighter_IndiaMap";
             if (sceneLockerHL != null) sceneLockerHL.name = "Highlighter_Locker";
             if (sceneLockerDoor != null) sceneLockerDoor.name = "LockerDoorB";
+            if (sceneExitDoor != null) sceneExitDoor.name = "ExitDoor";
 
             Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger, Scene 4, Scene 5, Scene 6, Scene 7, and Scene 8 verification checks passed successfully!");
             EditorApplication.Exit(0);

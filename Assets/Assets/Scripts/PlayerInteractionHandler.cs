@@ -15,6 +15,7 @@ namespace BunkerTools
         private bool _commandRoomTriggered = false;
         private bool _mapTriggered = false;
         private bool _lockerTriggered = false;
+        private bool _exitTriggered = false;
         private AudioClip _voiceChirpSFX;
 
         private void Start()
@@ -28,6 +29,7 @@ namespace BunkerTools
             CheckCommandRoomTrigger(other.gameObject);
             CheckMapTrigger(other.gameObject);
             CheckLockerTrigger(other.gameObject);
+            CheckExitTrigger(other.gameObject);
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -36,6 +38,7 @@ namespace BunkerTools
             CheckCommandRoomTrigger(collision.gameObject);
             CheckMapTrigger(collision.gameObject);
             CheckLockerTrigger(collision.gameObject);
+            CheckExitTrigger(collision.gameObject);
         }
 
         private void CheckAndRestorePower(GameObject targetGo)
@@ -264,10 +267,44 @@ namespace BunkerTools
                     Debug.LogWarning("[PlayerInteractionHandler] Highlighter_Locker not found in scene.");
                 }
 
+                // Enable "ExitDoor"
+                GameObject exitDoor = FindGameObjectIncludingInactive("ExitDoor");
+                if (exitDoor != null)
+                {
+                    exitDoor.SetActive(true);
+                    Debug.Log("[PlayerInteractionHandler] ExitDoor activated.");
+                }
+                else
+                {
+                    Debug.LogWarning("[PlayerInteractionHandler] ExitDoor not found in scene.");
+                }
+
                 // Initiate Scene 8 dialogues
                 if (MissionCoordinator.Instance != null)
                 {
                     MissionCoordinator.Instance.StartScene8DialogueSequence();
+                }
+            }
+        }
+
+        private void CheckExitTrigger(GameObject targetGo)
+        {
+            if (_exitTriggered) return;
+
+            // Detect collision/trigger with game object having tag "Exit"
+            if (targetGo.CompareTag("Exit"))
+            {
+                _exitTriggered = true;
+                Debug.Log($"[PlayerInteractionHandler] Collision/Trigger with tagged 'Exit' object '{targetGo.name}' detected.");
+
+                // Show mission end UI
+                if (MissionIntroUI.Instance != null)
+                {
+                    MissionIntroUI.Instance.ShowMissionEndUI();
+                }
+                else
+                {
+                    Debug.LogWarning("[PlayerInteractionHandler] MissionIntroUI.Instance is null!");
                 }
             }
         }
