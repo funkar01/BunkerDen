@@ -18,6 +18,13 @@ namespace BunkerTools
         [Tooltip("Is the main power currently on?")]
         public bool IsPowerOn = false;
 
+        [Header("Generator Settings")]
+        [Tooltip("The audio clip played when the generator turns on.")]
+        public AudioClip GeneratorStartClip;
+        
+        [Tooltip("Delay in seconds before lights and flickering sounds turn on after the generator starts.")]
+        public float LightsActivationDelay = 2.0f;
+
         [Header("Flashlight Configuration")]
         public float TorchRange = 25f; // Set to 25f from screenshot
         public float TorchAngle = 30f; // Outer Spot Angle set to 30f from screenshot
@@ -178,7 +185,39 @@ namespace BunkerTools
                 _staticHighlighterGo.SetActive(false);
             }
 
-            // 2. Restore all environmental lights
+            // 2. Switch off the torch light immediately
+            if (_playerTorchGo != null)
+            {
+                _playerTorchGo.SetActive(false);
+                Debug.Log("[BunkerPowerManager] Player torch turned off.");
+            }
+
+            // 3. Play the generator startup sound immediately
+            ActivateGeneratorAudio();
+
+            // 4. Delay the activation of lights and flickering/buzzing sounds
+            #if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                // In edit-mode verification tests, execute synchronously to prevent test hangs
+                ActivateLightsAndFlickers();
+            }
+            else
+            #endif
+            {
+                StartCoroutine(DelayedLightsActivationRoutine());
+            }
+        }
+
+        private IEnumerator DelayedLightsActivationRoutine()
+        {
+            yield return new WaitForSeconds(LightsActivationDelay);
+            ActivateLightsAndFlickers();
+        }
+
+        private void ActivateLightsAndFlickers()
+        {
+            // Restore all environmental lights
             foreach (var state in _darkenedLights)
             {
                 if (state.LightComponent != null)
@@ -189,7 +228,7 @@ namespace BunkerTools
             }
             _darkenedLights.Clear();
 
-            // 3. Restore all flickers & buzzing sounds
+            // Restore all flickers & buzzing sounds
             foreach (var f in _disabledFlickers)
             {
                 if (f != null) f.enabled = true;
@@ -206,11 +245,7 @@ namespace BunkerTools
             }
             _disabledAudioSources.Clear();
 
-            // 4. Activate generator objects and play generator audio
-            ActivateGeneratorAudio();
-
-            // Optional: Keep player torch or disable/toggle it. We keep it as a backup player tool.
-            Debug.Log("[BunkerPowerManager] Power restored. All environmental lights activated.");
+            Debug.Log("[BunkerPowerManager] Grid activation sequence complete. Environmental lights and flickers turned ON.");
         }
 
         private void SetupPlayerTorch(Transform parentCam)
@@ -415,19 +450,39 @@ namespace BunkerTools
             source.maxDistance = 25.0f;
             source.volume = 0.85f;
             source.rolloffMode = AudioRolloffMode.Logarithmic;
-            source.loop = false; // Start with startup clip, then transition to loop
+            source.loop = true; // Loop continuously
 
-            // Synthesize the startup and looping hum audio clips
-            AudioClip startupClip = CreateGeneratorStartupClip();
-            AudioClip humClip = CreateGeneratorHumClip();
+            // Try to load the specified generator audio clip if not already assigned
+            #if UNITY_EDITOR
+            if (GeneratorStartClip == null)
+            {
+                GeneratorStartClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Assets/Audios/freesound_community-generator-synthetic-63166.mp3");
+            }
+            #endif
 
-            source.clip = startupClip;
-            source.Play();
+            // Play the clip if loaded, otherwise fallback to synthesized startup sound
+            if (GeneratorStartClip != null)
+            {
+                source.clip = GeneratorStartClip;
+                source.Play();
+                Debug.Log($"[BunkerPowerManager] Playing generator audio asset '{GeneratorStartClip.name}' on '{generatorGo.name}'.");
+            }
+            else
+            {
+                source.loop = false; // Synthesized sequence handles looping itself
+                
+                // Synthesize the startup and looping hum audio clips
+                AudioClip startupClip = CreateGeneratorStartupClip();
+                AudioClip humClip = CreateGeneratorHumClip();
 
-            Debug.Log($"[BunkerPowerManager] Generator engine startup sound started on '{generatorGo.name}'.");
+                source.clip = startupClip;
+                source.Play();
 
-            // Transition to the looping hum clip after the startup clip completes
-            StartCoroutine(GeneratorAudioTransitionRoutine(source, humClip, startupClip.length));
+                Debug.Log($"[BunkerPowerManager] Generator audio asset not found. Playing synthesized engine startup sound on '{generatorGo.name}'.");
+
+                // Transition to the looping hum clip after the startup clip completes
+                StartCoroutine(GeneratorAudioTransitionRoutine(source, humClip, startupClip.length));
+            }
         }
 
         private IEnumerator GeneratorAudioTransitionRoutine(AudioSource source, AudioClip loopClip, float delay)
