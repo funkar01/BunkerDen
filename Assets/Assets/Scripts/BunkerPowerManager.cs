@@ -475,7 +475,7 @@ namespace BunkerTools
             source.maxDistance = 25.0f;
             source.volume = 0.85f;
             source.rolloffMode = AudioRolloffMode.Logarithmic;
-            source.loop = true; // Loop continuously
+            source.loop = false; // Do not loop continuously, we fade away instead
 
             // Try to load the specified generator audio clip if not already assigned
             #if UNITY_EDITOR
@@ -489,12 +489,14 @@ namespace BunkerTools
             if (GeneratorStartClip != null)
             {
                 source.clip = GeneratorStartClip;
+                source.loop = false;
                 source.Play();
                 Debug.Log($"[BunkerPowerManager] Playing generator audio asset '{GeneratorStartClip.name}' on '{generatorGo.name}'.");
+                StartCoroutine(GeneratorFadeOutRoutine(source, GeneratorStartClip.length));
             }
             else
             {
-                source.loop = false; // Synthesized sequence handles looping itself
+                source.loop = false;
                 
                 // Synthesize the startup and looping hum audio clips
                 AudioClip startupClip = CreateGeneratorStartupClip();
@@ -505,20 +507,54 @@ namespace BunkerTools
 
                 Debug.Log($"[BunkerPowerManager] Generator audio asset not found. Playing synthesized engine startup sound on '{generatorGo.name}'.");
 
-                // Transition to the looping hum clip after the startup clip completes
-                StartCoroutine(GeneratorAudioTransitionRoutine(source, humClip, startupClip.length));
+                // Transition to the hum clip and fade it out over 8.0 seconds
+                StartCoroutine(GeneratorSynthesizedTransitionAndFadeRoutine(source, humClip, startupClip.length, 8.0f));
             }
         }
 
-        private IEnumerator GeneratorAudioTransitionRoutine(AudioSource source, AudioClip loopClip, float delay)
+        private IEnumerator GeneratorFadeOutRoutine(AudioSource source, float duration)
         {
-            yield return new WaitForSeconds(delay - 0.05f); // Soft overlap
+            float startVolume = source.volume;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                if (source == null) yield break;
+                elapsed += Time.deltaTime;
+                source.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
+                yield return null;
+            }
             if (source != null)
             {
-                source.clip = loopClip;
-                source.loop = true;
+                source.Stop();
+                source.volume = startVolume;
+            }
+        }
+
+        private IEnumerator GeneratorSynthesizedTransitionAndFadeRoutine(AudioSource source, AudioClip humClip, float startupDuration, float fadeDuration)
+        {
+            yield return new WaitForSeconds(startupDuration - 0.05f); // Soft overlap
+            if (source != null)
+            {
+                source.clip = humClip;
+                source.loop = true; // Loop during the active fade-out window
                 source.Play();
-                Debug.Log("[BunkerPowerManager] Generator engine sound transitioned to steady looping hum.");
+
+                float startVolume = source.volume;
+                float elapsed = 0f;
+                while (elapsed < fadeDuration)
+                {
+                    if (source == null) yield break;
+                    elapsed += Time.deltaTime;
+                    source.volume = Mathf.Lerp(startVolume, 0f, elapsed / fadeDuration);
+                    yield return null;
+                }
+                if (source != null)
+                {
+                    source.Stop();
+                    source.loop = false;
+                    source.volume = startVolume;
+                    Debug.Log("[BunkerPowerManager] Synthesized generator audio faded out to silence.");
+                }
             }
         }
 
