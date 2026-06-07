@@ -43,12 +43,28 @@ namespace BunkerTools
         [Tooltip("Sync the light's volumetric multiplier in real-time?")]
         public bool syncVolumetric = true;
 
+        [Header("Audio Setup")]
+        [Tooltip("Audio clip for the electricity flickering/buzzing sound.")]
+        public AudioClip flickerSound;
+        [Tooltip("Base volume of the flicker sound.")]
+        [Range(0f, 1f)]
+        public float baseVolume = 0.5f;
+        [Tooltip("Maximum distance at which the sound can be heard (3D spatial audio).")]
+        public float maxAudioDistance = 15.0f;
+        [Tooltip("Minimum distance for spatial roll-off (3D spatial audio).")]
+        public float minAudioDistance = 1.0f;
+        [Tooltip("Sync the sound volume and pitch with light intensity fluctuations?")]
+        public bool syncVolumeWithFlicker = true;
+
         private Light lightComponent;
         private HDAdditionalLightData hdLightData;
         private MaterialPropertyBlock propertyBlock;
         private float baseIntensity;
         private float noiseTime;
         private int emissiveColorId;
+
+        private AudioSource audioSource;
+        private Transform cameraTransform;
 
         private void Start()
         {
@@ -61,6 +77,31 @@ namespace BunkerTools
             
             baseIntensity = lightComponent.intensity;
             noiseTime = Random.Range(0f, 1000f);
+
+            // Find main camera transform for distance culling
+            if (Camera.main != null)
+            {
+                cameraTransform = Camera.main.transform;
+            }
+
+            // Set up AudioSource if clip is assigned
+            if (flickerSound != null)
+            {
+                audioSource = GetComponent<AudioSource>();
+                if (audioSource == null)
+                {
+                    audioSource = gameObject.AddComponent<AudioSource>();
+                }
+                
+                audioSource.clip = flickerSound;
+                audioSource.loop = true;
+                audioSource.playOnAwake = false;
+                audioSource.spatialBlend = 1f; // 100% 3D spatial audio
+                audioSource.minDistance = minAudioDistance;
+                audioSource.maxDistance = maxAudioDistance;
+                audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
+                audioSource.volume = 0f; // Start silent, will be updated in Update
+            }
         }
 
         private void Update()
@@ -88,6 +129,65 @@ namespace BunkerTools
                 propertyBlock.SetColor(emissiveColorId, currentEmissive);
                 
                 targetRenderer.SetPropertyBlock(propertyBlock, materialIndex);
+            }
+
+            // Handle proximity-based culling for audio
+            if (audioSource != null)
+            {
+                // Dynamically fetch camera if it was lost or not loaded on start
+                if (cameraTransform == null && Camera.main != null)
+                {
+                    cameraTransform = Camera.main.transform;
+                }
+
+                if (cameraTransform != null)
+                {
+                    float distance = Vector3.Distance(transform.position, cameraTransform.position);
+                    bool withinRange = distance <= maxAudioDistance;
+
+                    if (withinRange)
+                    {
+                        // Enable AudioSource if it was disabled
+                        if (!audioSource.enabled)
+                        {
+                            audioSource.enabled = true;
+                        }
+
+                        if (!audioSource.isPlaying)
+                        {
+                            audioSource.Play();
+                            Debug.Log($"[AtmosphericFlicker] Electricity sound started for {gameObject.name}");
+                        }
+
+                        // Modulate volume and pitch based on flicker value (voltage fluctuation simulation)
+                        float volumeTarget = baseVolume;
+                        if (syncVolumeWithFlicker)
+                        {
+                            // Modulate volume target slightly based on intensity drops to sound more organic
+                            volumeTarget = baseVolume * (0.3f + 0.7f * targetValue);
+                            audioSource.pitch = 0.9f + 0.2f * targetValue;
+                        }
+                        else
+                        {
+                            audioSource.pitch = 1.0f;
+                        }
+
+                        audioSource.volume = volumeTarget;
+                    }
+                    else
+                    {
+                        // Pause/Disable AudioSource to save performance when far away
+                        if (audioSource.isPlaying)
+                        {
+                            audioSource.Pause();
+                            Debug.Log($"[AtmosphericFlicker] Electricity sound paused (culled) for {gameObject.name}");
+                        }
+                        if (audioSource.enabled)
+                        {
+                            audioSource.enabled = false;
+                        }
+                    }
+                }
             }
         }
 

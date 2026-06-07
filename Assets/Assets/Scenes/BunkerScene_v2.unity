@@ -1932,6 +1932,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1 &194713138
 GameObject:
   m_ObjectHideFlags: 0
@@ -2578,6 +2583,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1001 &253872661
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5579,6 +5589,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1001 &391192437
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7237,6 +7252,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1 &496687628
 GameObject:
   m_ObjectHideFlags: 0
@@ -9836,6 +9856,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1 &766848764
 GameObject:
   m_ObjectHideFlags: 0
@@ -13009,6 +13034,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1 &1004130150
 GameObject:
   m_ObjectHideFlags: 0
@@ -15147,6 +15177,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1001 &1121656959
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16711,6 +16746,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!4 &1226550016 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6328893955031581810, guid: e3206c9c442f260438e02ca353eaf317, type: 3}
@@ -16782,6 +16822,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1 &1294455526
 GameObject:
   m_ObjectHideFlags: 0
@@ -28679,6 +28724,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1 &1827581732
 GameObject:
   m_ObjectHideFlags: 0
@@ -29839,6 +29889,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1001 &1898982261
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -30781,6 +30836,11 @@ MonoBehaviour:
   materialIndex: 0
   emissiveColor: {r: 1, g: 1, b: 1, a: 1}
   syncVolumetric: 1
+  flickerSound: {fileID: 8300000, guid: ae9ffae0803889e40ae4766aa0fa5546, type: 3}
+  baseVolume: 0.1
+  maxAudioDistance: 5
+  minAudioDistance: 1
+  syncVolumeWithFlicker: 1
 --- !u!1001 &1917515820
 PrefabInstance:
   m_ObjectHideFlags: 0
