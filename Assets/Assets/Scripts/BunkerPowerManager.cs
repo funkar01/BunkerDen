@@ -246,6 +246,31 @@ namespace BunkerTools
             _disabledAudioSources.Clear();
 
             Debug.Log("[BunkerPowerManager] Grid activation sequence complete. Environmental lights and flickers turned ON.");
+
+            // Trigger Scene 4 dialogue sequence warning after a few seconds gap
+            #if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                if (MissionCoordinator.Instance != null)
+                {
+                    MissionCoordinator.Instance.StartScene4DialogueSequence();
+                }
+            }
+            else
+            #endif
+            {
+                StartCoroutine(TriggerScene4AfterDelayRoutine());
+            }
+        }
+
+        private IEnumerator TriggerScene4AfterDelayRoutine()
+        {
+            // Wait 4.0 seconds after grid power-up before starting coordinator warning
+            yield return new WaitForSeconds(4.0f);
+            if (MissionCoordinator.Instance != null)
+            {
+                MissionCoordinator.Instance.StartScene4DialogueSequence();
+            }
         }
 
         private void SetupPlayerTorch(Transform parentCam)

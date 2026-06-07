@@ -38,7 +38,7 @@ namespace BunkerTools
             mockPlayer.tag = "Player";
             PlayerInteractionHandler interaction = mockPlayer.AddComponent<PlayerInteractionHandler>();
 
-            // Find Power Manager (attached at runtime by bootstrapper, so we create it here for the scene context)
+            // Find Power Manager
             BunkerPowerManager powerManager = Object.FindAnyObjectByType<BunkerPowerManager>();
             if (powerManager == null)
             {
@@ -56,6 +56,27 @@ namespace BunkerTools
             {
                 backingField.SetValue(null, powerManager);
             }
+
+            // Find or create MissionCoordinator for verification
+            MissionCoordinator coordinator = Object.FindAnyObjectByType<MissionCoordinator>();
+            if (coordinator == null)
+            {
+                GameObject coordGo = new GameObject("MissionCoordinator");
+                coordinator = coordGo.AddComponent<MissionCoordinator>();
+            }
+
+            // Set the MissionCoordinator singleton Instance backing field via reflection
+            var coordBackingField = typeof(MissionCoordinator).GetField("<Instance>k__BackingField", 
+                System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+            if (coordBackingField != null)
+            {
+                coordBackingField.SetValue(null, coordinator);
+            }
+
+            // Configure default values for validation
+            coordinator.Scene4Dialogue1Text = "Mind the poisonous gases trapped inside, you need to hurry and find the evidence before your breath runs out";
+            coordinator.Scene4Dialogue2Text = "look for the main command room";
+            coordinator.Scene4ObjectiveText = "Look for the main command room";
 
             Debug.Log("[VERIFICATION] Simulating proximity trigger enter with 'ElectricSwitch' tagged object...");
             
@@ -109,10 +130,21 @@ namespace BunkerTools
                 Debug.LogWarning("[VERIFICATION] No generator GameObject found in scene to verify audio source on.");
             }
 
-            // Clean up temporary mock player
+            // Validate Scene 4 dialogue settings
+            if (coordinator.Scene4Dialogue1Text.Contains("poisonous gases") && coordinator.Scene4Dialogue2Text.Contains("main command room"))
+            {
+                Debug.Log("[VERIFICATION] SUCCESS: Scene 4 dialogue configuration validated correctly.");
+            }
+            else
+            {
+                Debug.LogError("[VERIFICATION] FAILURE: Scene 4 dialogue configurations are invalid!");
+                EditorApplication.Exit(1);
+            }
+
+            // Clean up temporary objects
             Object.DestroyImmediate(mockPlayer);
 
-            Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger verification checks passed successfully!");
+            Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger and Scene 4 verification checks passed successfully!");
             EditorApplication.Exit(0);
         }
     }

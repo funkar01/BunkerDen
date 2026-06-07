@@ -22,6 +22,22 @@ namespace BunkerTools
         [Tooltip("The final objective text shown in the HUD after dialogues conclude.")]
         public string ObjectiveHUDText = "Locate the generator and power on the Bunker!";
 
+        [Header("Scene 4 Dialogue Configuration")]
+        [Tooltip("First Dialogue text for Scene 4.")]
+        public string Scene4Dialogue1Text = "Mind the poisonous gases trapped inside, you need to hurry and find the evidence before your breath runs out";
+        
+        [Tooltip("Second Dialogue text for Scene 4.")]
+        public string Scene4Dialogue2Text = "look for the main command room";
+
+        [Tooltip("Objective text for Scene 4.")]
+        public string Scene4ObjectiveText = "Look for the main command room";
+        
+        [Tooltip("Optional Voice clip for Scene 4 Dialogue 1.")]
+        public AudioClip Scene4Dialogue1Clip;
+
+        [Tooltip("Optional Voice clip for Scene 4 Dialogue 2.")]
+        public AudioClip Scene4Dialogue2Clip;
+
         [Header("Voice Clips (Optional - Synthesized if empty)")]
         [Tooltip("Audio clip for Dialogue 1.")]
         public AudioClip Dialogue1Clip;
@@ -187,6 +203,114 @@ namespace BunkerTools
                 );
             }
             Debug.Log("[MissionCoordinator] Dialogue sequence completed. Objective HUD active.");
+        }
+
+        /// <summary>
+        /// Initiates the Scene 4 (Poisonous Gas warning) dialogue sequence.
+        /// </summary>
+        public void StartScene4DialogueSequence()
+        {
+            StartCoroutine(Scene4DialogueSequenceRoutine());
+        }
+
+        private IEnumerator Scene4DialogueSequenceRoutine()
+        {
+            Debug.Log("[MissionCoordinator] Initiating Scene 4 dialogues.");
+
+            // Ensure HUD is visible and faded in
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.SetHUDAlpha(1f);
+            }
+
+            // ============================================
+            // SCENE 4 DIALOGUE 1 SEQUENCE
+            // ============================================
+            PlaySound(_radioStartSFX, 0.45f);
+            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
+
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "TRANSMISSION: ACTIVE", 
+                    Scene4Dialogue1Text, 
+                    HUDTypewriterSpeed, 
+                    _voiceChirpSFX
+                );
+            }
+
+            float dialogue1Duration = 5.0f;
+            if (Scene4Dialogue1Clip != null)
+            {
+                _audioSource.clip = Scene4Dialogue1Clip;
+                _audioSource.Play();
+                dialogue1Duration = Scene4Dialogue1Clip.length;
+            }
+            else
+            {
+                PlaySpeechBeep();
+            }
+
+            float d1TextTime = Scene4Dialogue1Text.Length * HUDTypewriterSpeed;
+            yield return new WaitForSeconds(Mathf.Max(dialogue1Duration, d1TextTime));
+
+            PlaySound(_radioEndSFX, 0.45f);
+            yield return new WaitForSeconds(0.45f);
+
+            // ============================================
+            // TRANSMISSION STANDBY (1.5s)
+            // ============================================
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission("TRANSMISSION: STANDBY", Scene4Dialogue1Text, 0.001f, null);
+            }
+            yield return new WaitForSeconds(1.5f);
+
+            // ============================================
+            // SCENE 4 DIALOGUE 2 SEQUENCE
+            // ============================================
+            PlaySound(_radioStartSFX, 0.45f);
+            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
+
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "TRANSMISSION: ACTIVE", 
+                    Scene4Dialogue2Text, 
+                    HUDTypewriterSpeed, 
+                    _voiceChirpSFX
+                );
+            }
+
+            float dialogue2Duration = 3.0f;
+            if (Scene4Dialogue2Clip != null)
+            {
+                _audioSource.clip = Scene4Dialogue2Clip;
+                _audioSource.Play();
+                dialogue2Duration = Scene4Dialogue2Clip.length;
+            }
+            else
+            {
+                PlaySpeechBeep();
+            }
+
+            float d2TextTime = Scene4Dialogue2Text.Length * HUDTypewriterSpeed;
+            yield return new WaitForSeconds(Mathf.Max(dialogue2Duration, d2TextTime));
+
+            PlaySound(_radioEndSFX, 0.45f);
+            yield return new WaitForSeconds(0.45f);
+
+            // ============================================
+            // CONVERT TO OBJECTIVE TRACKING
+            // ============================================
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowObjective(
+                    "PRIORITY OBJECTIVE", 
+                    Scene4ObjectiveText
+                );
+            }
+            Debug.Log("[MissionCoordinator] Scene 4 dialogue sequence completed.");
         }
 
         private void PlaySound(AudioClip clip, float volume)
