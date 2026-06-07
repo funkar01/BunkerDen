@@ -23210,7 +23210,8 @@ MonoBehaviour:
   Scene4ObjectiveText: Look for the main command room
   Scene4Dialogue1Clip: {fileID: 0}
   Scene4Dialogue2Clip: {fileID: 0}
-  Scene5Dialogue1Text: Great, now search for the evidence, it should be the biometric key which looks like a hard drive.
+  Scene5Dialogue1Text: Great, now search for the evidence, it should be the biometric
+    key which looks like a hard drive.
   Scene5Dialogue2Text: 
   Scene5ObjectiveText: Search for the biometric key!
   Scene5Dialogue1Clip: {fileID: 0}
@@ -48659,7 +48660,7 @@ Light:
   serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0
+  m_Intensity: 1000
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 0
