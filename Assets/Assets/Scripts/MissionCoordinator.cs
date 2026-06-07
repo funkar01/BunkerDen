@@ -669,6 +669,11 @@ namespace BunkerTools
 
         private void PlaySound(AudioClip clip, float volume)
         {
+            if (clip == _radioStartSFX || clip == _radioEndSFX)
+            {
+                return;
+            }
+
             if (clip != null)
             {
                 _audioSource.PlayOneShot(clip, volume);
