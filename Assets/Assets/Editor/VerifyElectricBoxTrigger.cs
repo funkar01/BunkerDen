@@ -144,7 +144,7 @@ namespace BunkerTools
             // Configure default Scene 5 values for validation
             coordinator.Scene5Dialogue1Text = "Great, now search for the evidence, it should be the biometric key which looks like a hard drive.";
             coordinator.Scene5Dialogue2Text = "";
-            coordinator.Scene5ObjectiveText = "Search the main command arena";
+            coordinator.Scene5ObjectiveText = "Search for the biometric key!";
 
             // Create a mock CommandRoom GameObject
             GameObject mockCommandRoom = new GameObject("MockCommandRoom");
@@ -178,7 +178,7 @@ namespace BunkerTools
             }
 
             // Validate Scene 5 configurations
-            if (coordinator.Scene5Dialogue1Text.Contains("biometric key") && coordinator.Scene5ObjectiveText.Contains("command arena"))
+            if (coordinator.Scene5Dialogue1Text.Contains("biometric key") && coordinator.Scene5ObjectiveText.Contains("biometric key"))
             {
                 Debug.Log("[VERIFICATION] SUCCESS: Scene 5 dialogue configuration validated correctly.");
             }

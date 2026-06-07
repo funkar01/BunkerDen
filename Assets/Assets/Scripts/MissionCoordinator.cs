@@ -46,7 +46,7 @@ namespace BunkerTools
         public string Scene5Dialogue2Text = "";
 
         [Tooltip("Objective text for Scene 5.")]
-        public string Scene5ObjectiveText = "Search the main command arena";
+        public string Scene5ObjectiveText = "Search for the biometric key!";
         
         [Tooltip("Optional Voice clip for Scene 5 Dialogue 1.")]
         public AudioClip Scene5Dialogue1Clip;

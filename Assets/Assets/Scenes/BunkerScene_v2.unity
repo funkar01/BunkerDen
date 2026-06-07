@@ -23210,11 +23210,9 @@ MonoBehaviour:
   Scene4ObjectiveText: Look for the main command room
   Scene4Dialogue1Clip: {fileID: 0}
   Scene4Dialogue2Clip: {fileID: 0}
-  Scene5Dialogue1Text: You've made it to the main command room! Find the central
-    mainframe terminal.
-  Scene5Dialogue2Text: Access the terminal and download the encrypted files before
-    your air supply runs out.
-  Scene5ObjectiveText: Access the mainframe terminal and download the files
+  Scene5Dialogue1Text: Great, now search for the evidence, it should be the biometric key which looks like a hard drive.
+  Scene5Dialogue2Text: 
+  Scene5ObjectiveText: Search for the biometric key!
   Scene5Dialogue1Clip: {fileID: 0}
   Scene5Dialogue2Clip: {fileID: 0}
   Dialogue1Clip: {fileID: 0}
@@ -23274,7 +23272,7 @@ GameObject:
   - component: {fileID: 1110915893}
   m_Layer: 0
   m_Name: Highlighter_CommandRoom
-  m_TagString: Untagged
+  m_TagString: CommandRoom
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

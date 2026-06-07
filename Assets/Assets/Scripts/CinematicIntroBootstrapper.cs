@@ -50,7 +50,7 @@ namespace BunkerTools
             coordinator.Scene4ObjectiveText = "Look for the main command room";
             coordinator.Scene5Dialogue1Text = "Great, now search for the evidence, it should be the biometric key which looks like a hard drive.";
             coordinator.Scene5Dialogue2Text = "";
-            coordinator.Scene5ObjectiveText = "Search the main command arena";
+            coordinator.Scene5ObjectiveText = "Search for the biometric key!";
             coordinator.HUDTypewriterSpeed = 0.035f;
 
             // 5. Create and configure the MissionCoordinatorHUD
