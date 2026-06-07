@@ -161,7 +161,16 @@ namespace BunkerTools
             // 1. Remove or disable electric box outline highlight
             if (_boxHighlighter != null)
             {
-                Destroy(_boxHighlighter);
+                #if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    DestroyImmediate(_boxHighlighter);
+                }
+                else
+                #endif
+                {
+                    Destroy(_boxHighlighter);
+                }
                 _boxHighlighter = null;
             }
             if (_staticHighlighterGo != null)
