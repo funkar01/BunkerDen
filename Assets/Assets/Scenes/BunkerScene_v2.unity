@@ -23210,6 +23210,13 @@ MonoBehaviour:
   Scene4ObjectiveText: Look for the main command room
   Scene4Dialogue1Clip: {fileID: 0}
   Scene4Dialogue2Clip: {fileID: 0}
+  Scene5Dialogue1Text: You've made it to the main command room! Find the central
+    mainframe terminal.
+  Scene5Dialogue2Text: Access the terminal and download the encrypted files before
+    your air supply runs out.
+  Scene5ObjectiveText: Access the mainframe terminal and download the files
+  Scene5Dialogue1Clip: {fileID: 0}
+  Scene5Dialogue2Clip: {fileID: 0}
   Dialogue1Clip: {fileID: 0}
   Dialogue2Clip: {fileID: 0}
   HUDTypewriterSpeed: 0.035
@@ -23264,8 +23271,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1110915891}
   - component: {fileID: 1110915892}
+  - component: {fileID: 1110915893}
   m_Layer: 0
-  m_Name: Highlighter
+  m_Name: Highlighter_CommandRoom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23309,6 +23317,27 @@ MonoBehaviour:
   OutlineColor: {r: 0, g: 1, b: 0.95, a: 0.85}
   Blink: 1
   BlinkSpeed: 4.5
+--- !u!65 &1110915893
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1110915890}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1116076123
 PrefabInstance:
   m_ObjectHideFlags: 0

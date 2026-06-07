@@ -40,13 +40,13 @@ namespace BunkerTools
 
         [Header("Scene 5 Dialogue Configuration")]
         [Tooltip("First Dialogue text for Scene 5.")]
-        public string Scene5Dialogue1Text = "You've made it to the main command room! Find the central mainframe terminal.";
+        public string Scene5Dialogue1Text = "Great, now search for the evidence, it should be the biometric key which looks like a hard drive.";
         
         [Tooltip("Second Dialogue text for Scene 5.")]
-        public string Scene5Dialogue2Text = "Access the terminal and download the encrypted files before your air supply runs out.";
+        public string Scene5Dialogue2Text = "";
 
         [Tooltip("Objective text for Scene 5.")]
-        public string Scene5ObjectiveText = "Access the mainframe terminal and download the files";
+        public string Scene5ObjectiveText = "Search the main command arena";
         
         [Tooltip("Optional Voice clip for Scene 5 Dialogue 1.")]
         public AudioClip Scene5Dialogue1Clip;
@@ -367,7 +367,7 @@ namespace BunkerTools
                 );
             }
 
-            float dialogue1Duration = 4.0f;
+            float dialogue1Duration = 5.0f;
             if (Scene5Dialogue1Clip != null)
             {
                 _audioSource.clip = Scene5Dialogue1Clip;
@@ -381,49 +381,6 @@ namespace BunkerTools
 
             float d1TextTime = Scene5Dialogue1Text.Length * HUDTypewriterSpeed;
             yield return new WaitForSeconds(Mathf.Max(dialogue1Duration, d1TextTime));
-
-            PlaySound(_radioEndSFX, 0.45f);
-            yield return new WaitForSeconds(0.45f);
-
-            // ============================================
-            // TRANSMISSION STANDBY (1.5s)
-            // ============================================
-            if (MissionCoordinatorHUD.Instance != null)
-            {
-                MissionCoordinatorHUD.Instance.ShowTransmission("TRANSMISSION: STANDBY", Scene5Dialogue1Text, 0.001f, null);
-            }
-            yield return new WaitForSeconds(1.5f);
-
-            // ============================================
-            // SCENE 5 DIALOGUE 2 SEQUENCE
-            // ============================================
-            PlaySound(_radioStartSFX, 0.45f);
-            yield return new WaitForSeconds(_radioStartSFX.length - 0.05f);
-
-            if (MissionCoordinatorHUD.Instance != null)
-            {
-                MissionCoordinatorHUD.Instance.ShowTransmission(
-                    "TRANSMISSION: ACTIVE", 
-                    Scene5Dialogue2Text, 
-                    HUDTypewriterSpeed, 
-                    _voiceChirpSFX
-                );
-            }
-
-            float dialogue2Duration = 4.0f;
-            if (Scene5Dialogue2Clip != null)
-            {
-                _audioSource.clip = Scene5Dialogue2Clip;
-                _audioSource.Play();
-                dialogue2Duration = Scene5Dialogue2Clip.length;
-            }
-            else
-            {
-                PlaySpeechBeep();
-            }
-
-            float d2TextTime = Scene5Dialogue2Text.Length * HUDTypewriterSpeed;
-            yield return new WaitForSeconds(Mathf.Max(dialogue2Duration, d2TextTime));
 
             PlaySound(_radioEndSFX, 0.45f);
             yield return new WaitForSeconds(0.45f);

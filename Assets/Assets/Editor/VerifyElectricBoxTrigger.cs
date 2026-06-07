@@ -142,9 +142,9 @@ namespace BunkerTools
             }
 
             // Configure default Scene 5 values for validation
-            coordinator.Scene5Dialogue1Text = "You've made it to the main command room! Find the central mainframe terminal.";
-            coordinator.Scene5Dialogue2Text = "Access the terminal and download the encrypted files before your air supply runs out.";
-            coordinator.Scene5ObjectiveText = "Access the mainframe terminal and download the files";
+            coordinator.Scene5Dialogue1Text = "Great, now search for the evidence, it should be the biometric key which looks like a hard drive.";
+            coordinator.Scene5Dialogue2Text = "";
+            coordinator.Scene5ObjectiveText = "Search the main command arena";
 
             // Create a mock CommandRoom GameObject
             GameObject mockCommandRoom = new GameObject("MockCommandRoom");
@@ -178,7 +178,7 @@ namespace BunkerTools
             }
 
             // Validate Scene 5 configurations
-            if (coordinator.Scene5Dialogue1Text.Contains("mainframe") && coordinator.Scene5Dialogue2Text.Contains("encrypted files"))
+            if (coordinator.Scene5Dialogue1Text.Contains("biometric key") && coordinator.Scene5ObjectiveText.Contains("command arena"))
             {
                 Debug.Log("[VERIFICATION] SUCCESS: Scene 5 dialogue configuration validated correctly.");
             }
