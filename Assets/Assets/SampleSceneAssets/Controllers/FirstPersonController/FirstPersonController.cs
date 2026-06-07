@@ -47,6 +47,14 @@ namespace StarterAssets
 		[Tooltip("How far in degrees can you move the camera down")]
 		public float BottomClamp = -90.0f;
 
+		[Header("Mouse Movement Controls")]
+		[Tooltip("Enable mouse cursor-based rotation and click-to-walk/run")]
+		public bool UseMouseMovementControl = true;
+		[Tooltip("Deadzone around screen center for cursor rotation")]
+		public float MouseRotationDeadzone = 0.1f;
+		[Tooltip("Sensitivity multiplier for cursor-based rotation")]
+		public float MouseRotationSensitivity = 150f;
+
 		// cinemachine
 		private float _cinemachineTargetPitch;
 
@@ -59,6 +67,20 @@ namespace StarterAssets
 		// timeout deltatime
 		private float _jumpTimeoutDelta;
 		private float _fallTimeoutDelta;
+
+		private bool _movingByMouseClick;
+
+		[Header("Footstep Sounds")]
+		[Tooltip("Audio clip for player footsteps")]
+		public AudioClip FootstepAudioClip;
+		[Tooltip("Volume of footstep sounds")]
+		[Range(0f, 1f)] public float FootstepVolume = 0.4f;
+		[Tooltip("Pitch (speed) multiplier when walking")]
+		public float FootstepWalkPitch = 1.0f;
+		[Tooltip("Pitch (speed) multiplier when running")]
+		public float FootstepRunPitch = 1.35f;
+
+		private AudioSource _footstepAudioSource;
 
 	
 		private PlayerInput _playerInput;
@@ -78,6 +100,9 @@ namespace StarterAssets
 
 		private void Awake()
 		{
+			// Force UseMouseMovementControl to true programmatically to prevent Unity serialization issues
+			UseMouseMovementControl = true;
+
 			// get a reference to our main camera
 			if (_mainCamera == null)
 			{
@@ -94,13 +119,44 @@ namespace StarterAssets
 			// reset our timeouts on start
 			_jumpTimeoutDelta = JumpTimeout;
 			_fallTimeoutDelta = FallTimeout;
+
+#if UNITY_EDITOR
+			// Auto-load footstep clip if not assigned in the inspector
+			if (FootstepAudioClip == null)
+			{
+				string path = "Assets/Assets/Audios/sumaga123-shoe-steps-447693.mp3";
+				FootstepAudioClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+				if (FootstepAudioClip != null)
+				{
+					Debug.Log("[BunkerDen] Loaded footstep audio clip automatically.");
+				}
+			}
+#endif
+
+			// Initialize AudioSource for loop footsteps
+			_footstepAudioSource = GetComponent<AudioSource>();
+			if (_footstepAudioSource == null)
+			{
+				_footstepAudioSource = gameObject.AddComponent<AudioSource>();
+			}
+
+			if (FootstepAudioClip != null)
+			{
+				_footstepAudioSource.clip = FootstepAudioClip;
+				_footstepAudioSource.loop = true;
+				_footstepAudioSource.playOnAwake = false;
+				_footstepAudioSource.volume = FootstepVolume;
+				_footstepAudioSource.spatialBlend = 0f; // 2D sound for clear headset output
+			}
 		}
 
 		private void Update()
 		{
+			HandleMouseMovementInputs();
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
+			UpdateFootsteps();
 		}
 
 		private void LateUpdate()
@@ -113,6 +169,85 @@ namespace StarterAssets
 			// set sphere position, with offset
 			Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
 			Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+		}
+
+		private void HandleMouseMovementInputs()
+		{
+			if (!UseMouseMovementControl) return;
+
+			bool leftClick = false;
+			bool rightClick = false;
+
+			if (Mouse.current != null)
+			{
+				leftClick = Mouse.current.leftButton.isPressed;
+				rightClick = Mouse.current.rightButton.isPressed;
+			}
+			else
+			{
+				leftClick = Input.GetMouseButton(0);
+				rightClick = Input.GetMouseButton(1);
+			}
+
+			if (leftClick)
+			{
+				_input.move = new Vector2(0f, 1f); // Walk forward
+				_input.sprint = false;
+				_movingByMouseClick = true;
+				Debug.Log("[BunkerDen] Left Click Held - Walking Forward");
+			}
+			else if (rightClick)
+			{
+				_input.move = new Vector2(0f, 1f); // Run forward
+				_input.sprint = true;
+				_movingByMouseClick = true;
+				Debug.Log("[BunkerDen] Right Click Held - Running Forward");
+			}
+			else
+			{
+				if (_movingByMouseClick)
+				{
+					_input.move = Vector2.zero;
+					_input.sprint = false;
+					_movingByMouseClick = false;
+					Debug.Log("[BunkerDen] Clicks Released - Stopping Movement");
+				}
+			}
+		}
+
+		private void UpdateFootsteps()
+		{
+			if (_footstepAudioSource == null || FootstepAudioClip == null) return;
+
+			// Check if player is grounded and actually moving on the ground
+			Vector3 horizontalVelocity = new Vector3(_controller.velocity.x, 0f, _controller.velocity.z);
+			if (Grounded && horizontalVelocity.magnitude > 0.1f)
+			{
+				// Set pitch based on walking vs running
+				_footstepAudioSource.pitch = _input.sprint ? FootstepRunPitch : FootstepWalkPitch;
+				_footstepAudioSource.volume = FootstepVolume; // Update volume in case it was adjusted in inspector
+
+				// If not playing, play/unpause
+				if (!_footstepAudioSource.isPlaying)
+				{
+					_footstepAudioSource.UnPause();
+					// If it wasn't playing or paused before, let's call Play
+					if (!_footstepAudioSource.isPlaying)
+					{
+						_footstepAudioSource.Play();
+					}
+					Debug.Log($"[BunkerDen] Footsteps Resumed (pitch={_footstepAudioSource.pitch})");
+				}
+			}
+			else
+			{
+				// If playing, pause immediately
+				if (_footstepAudioSource.isPlaying)
+				{
+					_footstepAudioSource.Pause();
+					Debug.Log("[BunkerDen] Footsteps Paused");
+				}
+			}
 		}
 
 		private void CameraRotation()
