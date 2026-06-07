@@ -100,6 +100,27 @@ namespace BunkerTools
         private AudioClip _radioEndSFX;
         private AudioClip _voiceChirpSFX;
         private bool _sequenceStarted = false;
+        private bool _scene4SequenceStarted = false;
+        private Coroutine _activeDialogueCoroutine;
+        private Coroutine _triggerScene6Coroutine;
+
+        private void StopCurrentDialogueSequence()
+        {
+            if (_activeDialogueCoroutine != null)
+            {
+                StopCoroutine(_activeDialogueCoroutine);
+                _activeDialogueCoroutine = null;
+            }
+            if (_triggerScene6Coroutine != null)
+            {
+                StopCoroutine(_triggerScene6Coroutine);
+                _triggerScene6Coroutine = null;
+            }
+            if (_audioSource != null)
+            {
+                _audioSource.Stop();
+            }
+        }
 
         private void Awake()
         {
@@ -131,7 +152,8 @@ namespace BunkerTools
             if (_sequenceStarted) return;
             _sequenceStarted = true;
 
-            StartCoroutine(CoordinatorDialogueSequenceRoutine());
+            StopCurrentDialogueSequence();
+            _activeDialogueCoroutine = StartCoroutine(CoordinatorDialogueSequenceRoutine());
         }
 
         private IEnumerator CoordinatorDialogueSequenceRoutine()
@@ -256,7 +278,11 @@ namespace BunkerTools
         /// </summary>
         public void StartScene4DialogueSequence()
         {
-            StartCoroutine(Scene4DialogueSequenceRoutine());
+            if (_scene4SequenceStarted) return;
+            _scene4SequenceStarted = true;
+
+            StopCurrentDialogueSequence();
+            _activeDialogueCoroutine = StartCoroutine(Scene4DialogueSequenceRoutine());
         }
 
         private IEnumerator Scene4DialogueSequenceRoutine()
@@ -367,8 +393,12 @@ namespace BunkerTools
         public void StartScene5DialogueSequence()
         {
             if (_scene5SequenceStarted) return;
+            _sequenceStarted = true;
+            _scene4SequenceStarted = true;
             _scene5SequenceStarted = true;
-            StartCoroutine(Scene5DialogueSequenceRoutine());
+
+            StopCurrentDialogueSequence();
+            _activeDialogueCoroutine = StartCoroutine(Scene5DialogueSequenceRoutine());
         }
 
         private IEnumerator Scene5DialogueSequenceRoutine()
@@ -430,7 +460,7 @@ namespace BunkerTools
             }
             Debug.Log("[MissionCoordinator] Scene 5 dialogue sequence completed.");
 
-            // Transition to Scene 6 after 10 seconds of exploring the arena
+             // Transition to Scene 6 after 10 seconds of exploring the arena
             #if UNITY_EDITOR
             if (!Application.isPlaying)
             {
@@ -439,7 +469,7 @@ namespace BunkerTools
             else
             #endif
             {
-                StartCoroutine(TriggerScene6AfterDelayRoutine());
+                _triggerScene6Coroutine = StartCoroutine(TriggerScene6AfterDelayRoutine());
             }
         }
 
@@ -457,8 +487,13 @@ namespace BunkerTools
         public void StartScene6DialogueSequence()
         {
             if (_scene6SequenceStarted) return;
+            _sequenceStarted = true;
+            _scene4SequenceStarted = true;
+            _scene5SequenceStarted = true;
             _scene6SequenceStarted = true;
-            StartCoroutine(Scene6DialogueSequenceRoutine());
+
+            StopCurrentDialogueSequence();
+            _activeDialogueCoroutine = StartCoroutine(Scene6DialogueSequenceRoutine());
         }
 
         private IEnumerator Scene6DialogueSequenceRoutine()
@@ -539,8 +574,14 @@ namespace BunkerTools
         public void StartScene7DialogueSequence()
         {
             if (_scene7SequenceStarted) return;
+            _sequenceStarted = true;
+            _scene4SequenceStarted = true;
+            _scene5SequenceStarted = true;
+            _scene6SequenceStarted = true;
             _scene7SequenceStarted = true;
-            StartCoroutine(Scene7DialogueSequenceRoutine());
+
+            StopCurrentDialogueSequence();
+            _activeDialogueCoroutine = StartCoroutine(Scene7DialogueSequenceRoutine());
         }
 
         private IEnumerator Scene7DialogueSequenceRoutine()
@@ -606,8 +647,15 @@ namespace BunkerTools
         public void StartScene8DialogueSequence()
         {
             if (_scene8SequenceStarted) return;
+            _sequenceStarted = true;
+            _scene4SequenceStarted = true;
+            _scene5SequenceStarted = true;
+            _scene6SequenceStarted = true;
+            _scene7SequenceStarted = true;
             _scene8SequenceStarted = true;
-            StartCoroutine(Scene8DialogueSequenceRoutine());
+
+            StopCurrentDialogueSequence();
+            _activeDialogueCoroutine = StartCoroutine(Scene8DialogueSequenceRoutine());
         }
 
         private IEnumerator Scene8DialogueSequenceRoutine()

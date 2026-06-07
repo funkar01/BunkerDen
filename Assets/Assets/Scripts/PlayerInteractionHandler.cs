@@ -76,7 +76,7 @@ namespace BunkerTools
 
         private void CheckCommandRoomTrigger(GameObject targetGo)
         {
-            if (_commandRoomTriggered) return;
+            if (_commandRoomTriggered || _mapTriggered || _lockerTriggered) return;
 
             // Detect collision/trigger with game object having tag "CommandRoom"
             if (targetGo.CompareTag("CommandRoom"))
@@ -181,13 +181,7 @@ namespace BunkerTools
 
         private void CheckMapTrigger(GameObject targetGo)
         {
-            if (_mapTriggered) return;
-
-            // Only allow map trigger during Scene 6
-            if (MissionCoordinator.Instance != null && !MissionCoordinator.Instance.IsScene6Active)
-            {
-                return;
-            }
+            if (_mapTriggered || _lockerTriggered) return;
 
             // Detect collision/trigger with game object having tag "Map"
             if (targetGo.CompareTag("Map"))
@@ -205,6 +199,14 @@ namespace BunkerTools
                 else
                 {
                     Debug.LogWarning("[PlayerInteractionHandler] Highlighter_IndiaMap not found in scene.");
+                }
+
+                // Disable "Highlighter_CommandRoom" (in case Scene 5 was skipped)
+                GameObject commandRoomHL = FindGameObjectIncludingInactive("Highlighter_CommandRoom");
+                if (commandRoomHL != null)
+                {
+                    commandRoomHL.SetActive(false);
+                    Debug.Log("[PlayerInteractionHandler] Highlighter_CommandRoom deactivated due to skipped Scene 5.");
                 }
 
                 // Enable "Highlighter_Locker"
@@ -243,12 +245,6 @@ namespace BunkerTools
         {
             if (_lockerTriggered) return;
 
-            // Only allow locker trigger during Scene 7
-            if (MissionCoordinator.Instance != null && !MissionCoordinator.Instance.IsScene7Active)
-            {
-                return;
-            }
-
             // Detect collision/trigger with game object having tag "Locker"
             if (targetGo.CompareTag("Locker"))
             {
@@ -265,6 +261,28 @@ namespace BunkerTools
                 else
                 {
                     Debug.LogWarning("[PlayerInteractionHandler] Highlighter_Locker not found in scene.");
+                }
+
+                // Disable skipped highlighters and doors (in case preceding scenes were skipped)
+                GameObject commandRoomHL = FindGameObjectIncludingInactive("Highlighter_CommandRoom");
+                if (commandRoomHL != null)
+                {
+                    commandRoomHL.SetActive(false);
+                    Debug.Log("[PlayerInteractionHandler] Highlighter_CommandRoom deactivated due to skipped Scene 5.");
+                }
+
+                GameObject mapHL = FindGameObjectIncludingInactive("Highlighter_IndiaMap");
+                if (mapHL != null)
+                {
+                    mapHL.SetActive(false);
+                    Debug.Log("[PlayerInteractionHandler] Highlighter_IndiaMap deactivated due to skipped Scene 6/7.");
+                }
+
+                GameObject lockerDoor = FindGameObjectIncludingInactive("LockerDoorB");
+                if (lockerDoor != null)
+                {
+                    lockerDoor.SetActive(false);
+                    Debug.Log("[PlayerInteractionHandler] LockerDoorB deactivated due to skipped Scene 7.");
                 }
 
                 // Enable "ExitDoor"
