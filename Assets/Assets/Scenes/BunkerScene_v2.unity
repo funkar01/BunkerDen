@@ -23780,6 +23780,7 @@ MonoBehaviour:
   Scene5Dialogue2Clip: {fileID: 0}
   Scene6Dialogue1Text: The secret code is 'heart of India'.
   Scene6Dialogue1Clip: {fileID: 0}
+  Scene6ObjectiveText: Check for the 'Heart of India'!
   Dialogue1Clip: {fileID: 0}
   Dialogue2Clip: {fileID: 0}
   HUDTypewriterSpeed: 0.035

@@ -190,9 +190,10 @@ namespace BunkerTools
 
             // Configure default Scene 6 values for validation
             coordinator.Scene6Dialogue1Text = "The secret code is 'heart of India'.";
+            coordinator.Scene6ObjectiveText = "Check for the 'Heart of India'!";
 
             // Validate Scene 6 configurations
-            if (coordinator.Scene6Dialogue1Text.Contains("heart of India"))
+            if (coordinator.Scene6Dialogue1Text.Contains("heart of India") && coordinator.Scene6ObjectiveText.Contains("Heart of India"))
             {
                 Debug.Log("[VERIFICATION] SUCCESS: Scene 6 dialogue configuration validated correctly.");
             }

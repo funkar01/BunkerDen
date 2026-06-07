@@ -58,6 +58,9 @@ namespace BunkerTools
         [Tooltip("First Dialogue text for Scene 6.")]
         public string Scene6Dialogue1Text = "The secret code is 'heart of India'.";
 
+        [Tooltip("Objective text for Scene 6.")]
+        public string Scene6ObjectiveText = "Check for the 'Heart of India'!";
+
         [Tooltip("Optional Voice clip for Scene 6 Dialogue 1.")]
         public AudioClip Scene6Dialogue1Clip;
 
@@ -489,7 +492,7 @@ namespace BunkerTools
             {
                 MissionCoordinatorHUD.Instance.ShowObjective(
                     "PRIORITY OBJECTIVE", 
-                    Scene5ObjectiveText
+                    Scene6ObjectiveText
                 );
             }
             Debug.Log("[MissionCoordinator] Scene 6 dialogue sequence completed.");
