@@ -31,6 +31,9 @@ namespace BunkerTools
 
             GameObject sceneLockerHL = FindActiveOrInactive("Highlighter_Locker");
             if (sceneLockerHL != null) sceneLockerHL.name = "Highlighter_Locker_Temp";
+
+            GameObject sceneLockerDoor = FindActiveOrInactive("LockerDoorB");
+            if (sceneLockerDoor != null) sceneLockerDoor.name = "LockerDoorB_Temp";
             
             // Find Electric Box
             GameObject box = GameObject.Find("Tz-ExteriorElectricBox2");
@@ -227,6 +230,9 @@ namespace BunkerTools
             GameObject mockLockerHL = new GameObject("Highlighter_Locker");
             mockLockerHL.SetActive(false);
 
+            GameObject mockLockerDoor = new GameObject("LockerDoorB");
+            mockLockerDoor.SetActive(true);
+
             // Set Scene 6 active via reflection to bypass scene guard
             var scene6Field = typeof(MissionCoordinator).GetField("_scene6SequenceStarted", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -258,6 +264,17 @@ namespace BunkerTools
                 EditorApplication.Exit(1);
             }
 
+            // Validate that LockerDoorB was disabled
+            if (!mockLockerDoor.activeSelf)
+            {
+                Debug.Log("[VERIFICATION] SUCCESS: LockerDoorB was successfully disabled upon trigger.");
+            }
+            else
+            {
+                Debug.LogError("[VERIFICATION] FAILURE: LockerDoorB was not disabled!");
+                EditorApplication.Exit(1);
+            }
+
             // Validate Scene 7 configurations
             if (coordinator.Scene7Dialogue1Text.Contains("Indian map") && coordinator.Scene7ObjectiveText.Contains("unlocked locker"))
             {
@@ -276,11 +293,13 @@ namespace BunkerTools
             Object.DestroyImmediate(mockMap);
             Object.DestroyImmediate(mockIndiaMapHL);
             Object.DestroyImmediate(mockLockerHL);
+            Object.DestroyImmediate(mockLockerDoor);
 
             // Restore original object names
             if (sceneCmdRoomHL != null) sceneCmdRoomHL.name = "Highlighter_CommandRoom";
             if (sceneIndiaMapHL != null) sceneIndiaMapHL.name = "Highlighter_IndiaMap";
             if (sceneLockerHL != null) sceneLockerHL.name = "Highlighter_Locker";
+            if (sceneLockerDoor != null) sceneLockerDoor.name = "LockerDoorB";
 
             Debug.Log("[VERIFICATION] All PlayerInteractionHandler trigger, Scene 4, Scene 5, Scene 6, and Scene 7 verification checks passed successfully!");
             EditorApplication.Exit(0);

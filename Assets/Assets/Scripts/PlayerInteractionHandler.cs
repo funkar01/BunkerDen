@@ -213,6 +213,18 @@ namespace BunkerTools
                     Debug.LogWarning("[PlayerInteractionHandler] Highlighter_Locker not found in scene.");
                 }
 
+                // Disable "LockerDoorB"
+                GameObject lockerDoor = FindGameObjectIncludingInactive("LockerDoorB");
+                if (lockerDoor != null)
+                {
+                    lockerDoor.SetActive(false);
+                    Debug.Log("[PlayerInteractionHandler] LockerDoorB deactivated.");
+                }
+                else
+                {
+                    Debug.LogWarning("[PlayerInteractionHandler] LockerDoorB not found in scene.");
+                }
+
                 // Initiate Scene 7 dialogues
                 if (MissionCoordinator.Instance != null)
                 {
