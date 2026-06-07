@@ -136,11 +136,13 @@ namespace BunkerTools
             // 3. Update HUD to completion state and fade it out
             if (MissionCoordinatorHUD.Instance != null)
             {
-                MissionCoordinatorHUD.Instance.ShowObjective(
-                    "OBJECTIVE COMPLETED", 
-                    "Bunker power restored successfully."
+                MissionCoordinatorHUD.Instance.ShowTransmission(
+                    "COORDINATOR", 
+                    "Well done, now the power is on!", 
+                    0.035f, 
+                    _voiceChirpSFX
                 );
-                MissionCoordinatorHUD.Instance.FadeOutHUD(3.0f);
+                StartCoroutine(CompleteObjectiveRoutine());
             }
 
             // 4. Disable trigger and this script to prevent duplicate runs
@@ -149,6 +151,20 @@ namespace BunkerTools
                 _proximityTrigger.enabled = false;
             }
             enabled = false;
+        }
+
+        private IEnumerator CompleteObjectiveRoutine()
+        {
+            // Wait for typing to complete (approx 1.2s for the text)
+            yield return new WaitForSeconds(1.5f);
+            if (MissionCoordinatorHUD.Instance != null)
+            {
+                MissionCoordinatorHUD.Instance.ShowObjective(
+                    "OBJECTIVE COMPLETED", 
+                    "Well done, now the power is on!"
+                );
+                MissionCoordinatorHUD.Instance.FadeOutHUD(3.0f);
+            }
         }
 
         private void PlaySwitchClickSFX()
