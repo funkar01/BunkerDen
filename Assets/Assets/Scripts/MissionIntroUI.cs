@@ -56,6 +56,14 @@ namespace BunkerTools
         private bool _isEndScreen = false;
         private Coroutine _typewriterCoroutine;
 
+        // UI references for new controls
+        private GameObject _helpPanelBorderGo;
+        private GameObject _helpButtonBorderGo;
+        private GameObject _quitButtonBorderGo;
+        private GameObject _closeXButtonBorderGo;
+        private Text _closeHelpButtonText;
+        private bool _enteredFromMissionButton = false;
+
         // Generated audio clips
         private AudioClip _syntheticTypewriterTick;
         private AudioClip _syntheticHover;
@@ -144,9 +152,94 @@ namespace BunkerTools
             }
 
             if (_transitionStarted) return;
-            _transitionStarted = true;
 
-            StartCoroutine(TransitionSequence());
+            // Show Help Panel first so player doesn't miss it
+            _enteredFromMissionButton = true;
+            if (_closeHelpButtonText != null)
+            {
+                _closeHelpButtonText.text = "START MISSION";
+            }
+            
+            PlaySound(ClickSound != null ? ClickSound : _syntheticClick, 0.5f);
+            if (_helpPanelBorderGo != null)
+            {
+                _helpPanelBorderGo.SetActive(true);
+            }
+        }
+
+        public void OnCloseButtonClicked()
+        {
+            PlaySound(ClickSound != null ? ClickSound : _syntheticClick, 0.5f);
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #else
+            Application.Quit();
+            #endif
+        }
+
+        public void OnHelpButtonClicked()
+        {
+            _enteredFromMissionButton = false;
+            if (_closeHelpButtonText != null)
+            {
+                _closeHelpButtonText.text = "CLOSE HELP";
+            }
+            PlaySound(ClickSound != null ? ClickSound : _syntheticClick, 0.5f);
+            if (_helpPanelBorderGo != null)
+            {
+                _helpPanelBorderGo.SetActive(true);
+            }
+        }
+
+        public void OnCloseHelpButtonClicked()
+        {
+            PlaySound(ClickSound != null ? ClickSound : _syntheticClick, 0.5f);
+            if (_helpPanelBorderGo != null)
+            {
+                _helpPanelBorderGo.SetActive(false);
+            }
+
+            // If we came from the Enter Mission flow, trigger the game start transition
+            if (_enteredFromMissionButton)
+            {
+                _enteredFromMissionButton = false;
+                if (_transitionStarted) return;
+                _transitionStarted = true;
+                StartCoroutine(TransitionSequence());
+            }
+        }
+
+        private Sprite LoadHelpSprite()
+        {
+            Texture2D tex = Resources.Load<Texture2D>("MouseControlsHelp");
+            if (tex == null)
+            {
+                Debug.LogWarning("[MissionIntroUI] Could not load MouseControlsHelp via Resources.Load. Trying direct file load from path.");
+                try
+                {
+                    string fullPath = System.IO.Path.Combine(Application.dataPath, "Resources/MouseControlsHelp.png");
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        byte[] fileData = System.IO.File.ReadAllBytes(fullPath);
+                        tex = new Texture2D(2, 2);
+                        tex.LoadImage(fileData);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError("[MissionIntroUI] Error loading fallback image: " + ex.Message);
+                }
+            }
+
+            if (tex != null)
+            {
+                return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+            }
+            else
+            {
+                Debug.LogError("[MissionIntroUI] MouseControlsHelp texture could not be loaded!");
+                return null;
+            }
         }
 
         public void PlayHoverSound()
@@ -353,6 +446,56 @@ namespace BunkerTools
         /// <summary>
         /// Programmatically constructs a high-quality, glassmorphic briefing UI screen overlays.
         /// </summary>
+        private GameObject CreateUIButton(Transform parent, string name, string text, Vector2 anchoredPosition, Vector2 size, string buttonType, out Image outButtonImage, out Text outButtonText)
+        {
+            GameObject btnBorderGo = new GameObject(name + "Border");
+            btnBorderGo.transform.SetParent(parent, false);
+            Image btnBorderImage = btnBorderGo.AddComponent<Image>();
+            btnBorderImage.color = new Color(0.4f, 1f, 0.98f, 0.35f); // Soft cyan border for button
+
+            RectTransform btnBorderRect = btnBorderImage.GetComponent<RectTransform>();
+            btnBorderRect.anchorMin = new Vector2(0.5f, 0f);
+            btnBorderRect.anchorMax = new Vector2(0.5f, 0f);
+            btnBorderRect.pivot = new Vector2(0.5f, 0f);
+            btnBorderRect.anchoredPosition = anchoredPosition;
+            btnBorderRect.sizeDelta = size;
+
+            GameObject btnGo = new GameObject(name);
+            btnGo.transform.SetParent(btnBorderGo.transform, false);
+            outButtonImage = btnGo.AddComponent<Image>();
+            outButtonImage.color = new Color(0.07f, 0.08f, 0.09f, 0.9f);
+
+            RectTransform btnRect = outButtonImage.GetComponent<RectTransform>();
+            btnRect.anchorMin = Vector2.zero;
+            btnRect.anchorMax = Vector2.one;
+            btnRect.sizeDelta = new Vector2(-4f, -4f); // 2px border offset
+
+            GameObject btnTextGo = new GameObject(name + "Text");
+            btnTextGo.transform.SetParent(btnGo.transform, false);
+            outButtonText = btnTextGo.AddComponent<Text>();
+            outButtonText.text = text;
+            outButtonText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            outButtonText.fontSize = 18;
+            outButtonText.fontStyle = FontStyle.Bold;
+            outButtonText.color = new Color(0.4f, 1f, 0.98f, 1f);
+            outButtonText.alignment = TextAnchor.MiddleCenter;
+            outButtonText.horizontalOverflow = HorizontalWrapMode.Overflow;
+            outButtonText.verticalOverflow = VerticalWrapMode.Overflow;
+
+            RectTransform btnTxtRect = btnTextGo.GetComponent<RectTransform>();
+            btnTxtRect.anchorMin = Vector2.zero;
+            btnTxtRect.anchorMax = Vector2.one;
+            btnTxtRect.sizeDelta = Vector2.zero;
+
+            MissionButtonEffects effects = btnGo.AddComponent<MissionButtonEffects>();
+            effects.IntroUI = this;
+            effects.ButtonImage = outButtonImage;
+            effects.ButtonText = outButtonText;
+            effects.ButtonType = buttonType;
+
+            return btnGo;
+        }
+
         private void ConstructUI()
         {
             Debug.Log("[MissionIntroUI] Dynamic UI Canvas construction initiated.");
@@ -480,51 +623,160 @@ namespace BunkerTools
             bodyRect.anchoredPosition = new Vector2(0f, -135f);
             bodyRect.sizeDelta = new Vector2(-100f, 210f);
 
-            // 7. Interactive action button
-            GameObject btnBorderGo = new GameObject("EnterButtonBorder");
-            btnBorderGo.transform.SetParent(panelGo.transform, false);
-            Image btnBorderImage = btnBorderGo.AddComponent<Image>();
-            btnBorderImage.color = new Color(0.4f, 1f, 0.98f, 0.35f); // Soft cyan border for button
+            // 7. Interactive Action Buttons (Symmetrical Layout)
+            _helpButtonBorderGo = CreateUIButton(panelGo.transform, "HelpButton", "HELP", new Vector2(-260f, 40f), new Vector2(200f, 60f), "Help", out _, out _).transform.parent.gameObject;
+            CreateUIButton(panelGo.transform, "EnterButton", "ENTER THE MISSION", new Vector2(0f, 40f), new Vector2(280f, 60f), "Enter", out EnterButtonImage, out EnterButtonText);
+            _quitButtonBorderGo = CreateUIButton(panelGo.transform, "QuitButton", "QUIT GAME", new Vector2(260f, 40f), new Vector2(200f, 60f), "Close", out _, out _).transform.parent.gameObject;
 
-            RectTransform btnBorderRect = btnBorderImage.GetComponent<RectTransform>();
-            btnBorderRect.anchorMin = new Vector2(0.5f, 0f);
-            btnBorderRect.anchorMax = new Vector2(0.5f, 0f);
-            btnBorderRect.pivot = new Vector2(0.5f, 0f);
-            btnBorderRect.anchoredPosition = new Vector2(0f, 40f);
-            btnBorderRect.sizeDelta = new Vector2(340f, 60f); // Expanded from 284x54
+            // Top-right corner close button for tactical HUD
+            GameObject closeBtnBorderGo = new GameObject("CloseXButtonBorder");
+            closeBtnBorderGo.transform.SetParent(panelGo.transform, false);
+            Image closeBtnBorderImage = closeBtnBorderGo.AddComponent<Image>();
+            closeBtnBorderImage.color = new Color(1f, 0.35f, 0.35f, 0.35f); // Reddish border for close
 
-            GameObject btnGo = new GameObject("EnterButton");
-            btnGo.transform.SetParent(btnBorderGo.transform, false);
-            EnterButtonImage = btnGo.AddComponent<Image>();
-            EnterButtonImage.color = new Color(0.07f, 0.08f, 0.09f, 0.9f);
+            RectTransform closeBtnBorderRect = closeBtnBorderImage.GetComponent<RectTransform>();
+            closeBtnBorderRect.anchorMin = new Vector2(1f, 1f);
+            closeBtnBorderRect.anchorMax = new Vector2(1f, 1f);
+            closeBtnBorderRect.pivot = new Vector2(1f, 1f);
+            closeBtnBorderRect.anchoredPosition = new Vector2(-15f, -15f);
+            closeBtnBorderRect.sizeDelta = new Vector2(36f, 36f);
 
-            RectTransform btnRect = EnterButtonImage.GetComponent<RectTransform>();
-            btnRect.anchorMin = Vector2.zero;
-            btnRect.anchorMax = Vector2.one;
-            btnRect.sizeDelta = new Vector2(-4f, -4f); // 2px border offset
+            GameObject closeBtnGo = new GameObject("CloseXButton");
+            closeBtnGo.transform.SetParent(closeBtnBorderGo.transform, false);
+            Image closeBtnImage = closeBtnGo.AddComponent<Image>();
+            closeBtnImage.color = new Color(0.07f, 0.08f, 0.09f, 0.9f);
 
-            GameObject btnTextGo = new GameObject("EnterButtonText");
-            btnTextGo.transform.SetParent(btnGo.transform, false);
-            EnterButtonText = btnTextGo.AddComponent<Text>();
-            EnterButtonText.text = "ENTER THE MISSION";
-            EnterButtonText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            EnterButtonText.fontSize = 20; // Enlarged from 16
-            EnterButtonText.fontStyle = FontStyle.Bold;
-            EnterButtonText.color = new Color(0.4f, 1f, 0.98f, 1f);
-            EnterButtonText.alignment = TextAnchor.MiddleCenter;
-            EnterButtonText.horizontalOverflow = HorizontalWrapMode.Overflow;
-            EnterButtonText.verticalOverflow = VerticalWrapMode.Overflow;
+            RectTransform closeBtnRect = closeBtnImage.GetComponent<RectTransform>();
+            closeBtnRect.anchorMin = Vector2.zero;
+            closeBtnRect.anchorMax = Vector2.one;
+            closeBtnRect.sizeDelta = new Vector2(-4f, -4f);
 
-            RectTransform btnTxtRect = btnTextGo.GetComponent<RectTransform>();
-            btnTxtRect.anchorMin = Vector2.zero;
-            btnTxtRect.anchorMax = Vector2.one;
-            btnTxtRect.sizeDelta = Vector2.zero;
+            GameObject closeBtnTextGo = new GameObject("CloseXButtonText");
+            closeBtnTextGo.transform.SetParent(closeBtnGo.transform, false);
+            Text closeBtnText = closeBtnTextGo.AddComponent<Text>();
+            closeBtnText.text = "X";
+            closeBtnText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            closeBtnText.fontSize = 18;
+            closeBtnText.fontStyle = FontStyle.Bold;
+            closeBtnText.color = new Color(1f, 0.35f, 0.35f, 1f); // Red text
+            closeBtnText.alignment = TextAnchor.MiddleCenter;
 
-            // Attach interactive custom pointer and animation logic to the button
-            MissionButtonEffects effects = btnGo.AddComponent<MissionButtonEffects>();
-            effects.IntroUI = this;
-            effects.ButtonImage = EnterButtonImage;
-            effects.ButtonText = EnterButtonText;
+            RectTransform closeBtnTxtRect = closeBtnTextGo.GetComponent<RectTransform>();
+            closeBtnTxtRect.anchorMin = Vector2.zero;
+            closeBtnTxtRect.anchorMax = Vector2.one;
+            closeBtnTxtRect.sizeDelta = Vector2.zero;
+
+            MissionButtonEffects closeEffects = closeBtnGo.AddComponent<MissionButtonEffects>();
+            closeEffects.IntroUI = this;
+            closeEffects.ButtonImage = closeBtnImage;
+            closeEffects.ButtonText = closeBtnText;
+            closeEffects.ButtonType = "Close";
+            closeEffects.NormalBgColor = new Color(0.07f, 0.08f, 0.09f, 0.9f);
+            closeEffects.HoverBgColor = new Color(1f, 0.35f, 0.35f, 1.0f); // Bright red on hover
+            closeEffects.NormalTextColor = new Color(1f, 0.35f, 0.35f, 1f);
+            closeEffects.HoverTextColor = new Color(0.04f, 0.05f, 0.06f, 1.0f);
+
+            _closeXButtonBorderGo = closeBtnBorderGo;
+
+            // 8. Help Panel Overlay (initially inactive)
+            _helpPanelBorderGo = new GameObject("HelpPanelBorder");
+            _helpPanelBorderGo.transform.SetParent(canvasGo.transform, false);
+            _helpPanelBorderGo.SetActive(false);
+
+            Image helpBorderImage = _helpPanelBorderGo.AddComponent<Image>();
+            helpBorderImage.color = new Color(0.4f, 1f, 0.98f, 0.25f); // Soft cyan border
+
+            RectTransform helpBorderRect = helpBorderImage.GetComponent<RectTransform>();
+            helpBorderRect.sizeDelta = new Vector2(804f, 524f);
+
+            GameObject helpPanelGo = new GameObject("HelpPanel");
+            helpPanelGo.transform.SetParent(_helpPanelBorderGo.transform, false);
+            Image helpPanelImage = helpPanelGo.AddComponent<Image>();
+            helpPanelImage.color = new Color(0.04f, 0.05f, 0.06f, 0.98f); // High-opacity glass background
+
+            RectTransform helpPanelRect = helpPanelImage.GetComponent<RectTransform>();
+            helpPanelRect.anchorMin = Vector2.zero;
+            helpPanelRect.anchorMax = Vector2.one;
+            helpPanelRect.sizeDelta = new Vector2(-4f, -4f);
+
+            // Add UI Corner Brackets
+            AddCornerBrackets(helpPanelGo.transform, 800f, 520f);
+
+            // Title: CONTROLS GUIDE
+            GameObject helpTitleGo = new GameObject("HelpTitleText");
+            helpTitleGo.transform.SetParent(helpPanelGo.transform, false);
+            Text helpTitleText = helpTitleGo.AddComponent<Text>();
+            helpTitleText.text = "CONTROLS GUIDE";
+            helpTitleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            helpTitleText.fontSize = 28;
+            helpTitleText.fontStyle = FontStyle.Bold;
+            helpTitleText.color = new Color(0.4f, 1f, 0.98f, 1f);
+            helpTitleText.alignment = TextAnchor.MiddleCenter;
+
+            RectTransform helpTitleRect = helpTitleGo.GetComponent<RectTransform>();
+            helpTitleRect.anchorMin = new Vector2(0f, 1f);
+            helpTitleRect.anchorMax = new Vector2(1f, 1f);
+            helpTitleRect.pivot = new Vector2(0.5f, 1f);
+            helpTitleRect.anchoredPosition = new Vector2(0f, -25f);
+            helpTitleRect.sizeDelta = new Vector2(-60f, 40f);
+
+            // Subtitle
+            GameObject helpSubGo = new GameObject("HelpSubTitleText");
+            helpSubGo.transform.SetParent(helpPanelGo.transform, false);
+            Text helpSubText = helpSubGo.AddComponent<Text>();
+            helpSubText.text = "MOUSE BINDINGS FOR MOVEMENT";
+            helpSubText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            helpSubText.fontSize = 14;
+            helpSubText.fontStyle = FontStyle.Bold;
+            helpSubText.color = new Color(1f, 0.35f, 0.35f, 1f); // Warning red accent
+            helpSubText.alignment = TextAnchor.MiddleCenter;
+
+            RectTransform helpSubRect = helpSubGo.GetComponent<RectTransform>();
+            helpSubRect.anchorMin = new Vector2(0f, 1f);
+            helpSubRect.anchorMax = new Vector2(1f, 1f);
+            helpSubRect.pivot = new Vector2(0.5f, 1f);
+            helpSubRect.anchoredPosition = new Vector2(0f, -65f);
+            helpSubRect.sizeDelta = new Vector2(-60f, 30f);
+
+            // Divider Line
+            GameObject helpLineGo = new GameObject("HelpDividerLine");
+            helpLineGo.transform.SetParent(helpPanelGo.transform, false);
+            Image helpLineImage = helpLineGo.AddComponent<Image>();
+            helpLineImage.color = new Color(0.4f, 1f, 0.98f, 0.15f);
+
+            RectTransform helpLineRect = helpLineImage.GetComponent<RectTransform>();
+            helpLineRect.anchorMin = new Vector2(0f, 1f);
+            helpLineRect.anchorMax = new Vector2(1f, 1f);
+            helpLineRect.pivot = new Vector2(0.5f, 1f);
+            helpLineRect.anchoredPosition = new Vector2(0f, -95f);
+            helpLineRect.sizeDelta = new Vector2(-100f, 2f);
+
+            // Mouse Graphic Image
+            GameObject mouseGraphicGo = new GameObject("MouseGraphic");
+            mouseGraphicGo.transform.SetParent(helpPanelGo.transform, false);
+            Image mouseGraphicImage = mouseGraphicGo.AddComponent<Image>();
+            
+            Sprite loadedSprite = LoadHelpSprite();
+            if (loadedSprite != null)
+            {
+                mouseGraphicImage.sprite = loadedSprite;
+            }
+            else
+            {
+                mouseGraphicImage.color = Color.clear;
+            }
+            mouseGraphicImage.preserveAspect = true;
+
+            RectTransform mouseGraphicRect = mouseGraphicImage.GetComponent<RectTransform>();
+            mouseGraphicRect.anchorMin = new Vector2(0.5f, 0.5f);
+            mouseGraphicRect.anchorMax = new Vector2(0.5f, 0.5f);
+            mouseGraphicRect.pivot = new Vector2(0.5f, 0.5f);
+            mouseGraphicRect.anchoredPosition = new Vector2(0f, 10f); // Centered, adjusted to avoid header overlap
+            mouseGraphicRect.sizeDelta = new Vector2(350f, 280f);
+            mouseGraphicRect.localScale = new Vector3(1f, 1.5f, 1f);
+
+            // Close Help Button
+            CreateUIButton(helpPanelGo.transform, "CloseHelpButton", "CLOSE HELP", new Vector2(0f, 40f), new Vector2(280f, 60f), "CloseHelp", out _, out _closeHelpButtonText);
         }
 
         private void AddCornerBrackets(Transform parent, float width, float height)
@@ -670,6 +922,11 @@ namespace BunkerTools
             if (BodyTextComponent != null) BodyTextComponent.text = BriefingText;
             if (EnterButtonText != null) EnterButtonText.text = "CLOSE GAME";
 
+            // Hide secondary buttons for the final screen
+            if (_helpButtonBorderGo != null) _helpButtonBorderGo.SetActive(false);
+            if (_quitButtonBorderGo != null) _quitButtonBorderGo.SetActive(false);
+            if (_closeXButtonBorderGo != null) _closeXButtonBorderGo.SetActive(false);
+
             // Reset button visuals in case it was left hovered
             if (EnterButtonImage != null)
             {
@@ -721,6 +978,8 @@ namespace BunkerTools
         public Color NormalTextColor = new Color(0.4f, 1f, 0.98f, 1.0f);
         public Color HoverTextColor = new Color(0.04f, 0.05f, 0.06f, 1.0f); // Black text on Cyan bg
 
+        public string ButtonType = "Enter"; // "Enter", "Help", "Close", "CloseHelp"
+
         private Vector3 _originalScale;
         private bool _isHovered = false;
 
@@ -764,8 +1023,8 @@ namespace BunkerTools
 
         private void Update()
         {
-            // Pulse the button scale slightly when typewriter is finished to grab user attention
-            if (IntroUI != null && IntroUI.IsTypewriterDone() && !_isHovered)
+            // Pulse only the primary action button to focus attention
+            if (ButtonType == "Enter" && IntroUI != null && IntroUI.IsTypewriterDone() && !_isHovered)
             {
                 float pulse = 1.0f + Mathf.Sin(Time.time * 3.5f) * 0.022f;
                 transform.localScale = _originalScale * pulse;
@@ -776,7 +1035,22 @@ namespace BunkerTools
         {
             if (IntroUI != null)
             {
-                IntroUI.OnButtonClicked();
+                if (ButtonType == "Enter")
+                {
+                    IntroUI.OnButtonClicked();
+                }
+                else if (ButtonType == "Help")
+                {
+                    IntroUI.OnHelpButtonClicked();
+                }
+                else if (ButtonType == "Close")
+                {
+                    IntroUI.OnCloseButtonClicked();
+                }
+                else if (ButtonType == "CloseHelp")
+                {
+                    IntroUI.OnCloseHelpButtonClicked();
+                }
             }
         }
     }
