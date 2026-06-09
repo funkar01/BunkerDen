@@ -57,11 +57,11 @@ namespace BunkerTools
         private Coroutine _typewriterCoroutine;
 
         // UI references for new controls
-        private GameObject _helpPanelBorderGo;
-        private GameObject _helpButtonBorderGo;
-        private GameObject _quitButtonBorderGo;
-        private GameObject _closeXButtonBorderGo;
-        private Text _closeHelpButtonText;
+        [SerializeField] private GameObject _helpPanelBorderGo;
+        [SerializeField] private GameObject _helpButtonBorderGo;
+        [SerializeField] private GameObject _quitButtonBorderGo;
+        [SerializeField] private GameObject _closeXButtonBorderGo;
+        [SerializeField] private Text _closeHelpButtonText;
         private bool _enteredFromMissionButton = false;
 
         // Generated audio clips
@@ -92,6 +92,12 @@ namespace BunkerTools
             if (IntroCanvasGroup == null)
             {
                 ConstructUI();
+            }
+
+            // Ensure Help Panel is closed at start (even if left open in Editor)
+            if (_helpPanelBorderGo != null)
+            {
+                _helpPanelBorderGo.SetActive(false);
             }
 
             // Screen should start completely black (ScreenFadeManager handles this via StartAlpha = 1)
@@ -211,6 +217,18 @@ namespace BunkerTools
 
         private Sprite LoadHelpSprite()
         {
+            #if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                string assetPath = "Assets/Resources/MouseControlsHelp.png";
+                Sprite spriteAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(assetPath);
+                if (spriteAsset != null)
+                {
+                    return spriteAsset;
+                }
+            }
+            #endif
+
             Texture2D tex = Resources.Load<Texture2D>("MouseControlsHelp");
             if (tex == null)
             {
@@ -959,6 +977,28 @@ namespace BunkerTools
             IntroCanvasGroup.alpha = 1f;
         }
         #endregion
+
+        #region Editor Support
+        #if UNITY_EDITOR
+        [ContextMenu("Generate UI in Scene")]
+        public void GenerateUIInScene()
+        {
+            // Destroy existing UI if present to avoid duplication
+            Transform existingCanvas = transform.Find("IntroCanvas");
+            if (existingCanvas != null)
+            {
+                DestroyImmediate(existingCanvas.gameObject);
+            }
+
+            // Construct the UI hierarchy
+            ConstructUI();
+
+            // Mark the scene as dirty so the editor knows to save changes
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+            Debug.Log("[MissionIntroUI] UI generated in scene and references assigned successfully.");
+        }
+        #endif
+        #endregion
     }
 
     /// <summary>
@@ -986,6 +1026,10 @@ namespace BunkerTools
         private void Start()
         {
             _originalScale = transform.localScale;
+            if (IntroUI == null)
+            {
+                IntroUI = MissionIntroUI.Instance;
+            }
             ResetButtonState();
         }
 
