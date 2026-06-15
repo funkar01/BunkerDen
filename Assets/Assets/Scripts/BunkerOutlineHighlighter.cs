@@ -93,15 +93,35 @@ namespace BunkerTools
         {
             // In HDRP, Sprites/Default or Internal-Colored shaders are incompatible and cull.
             // We search for HDRP/Unlit first, and configure it as a glowing overlay.
-            Shader shader = Shader.Find("HDRP/Unlit");
-            bool isHDRP = (shader != null);
+            Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
+            bool isURP = (shader != null);
+            if (shader == null)
+            {
+                shader = Shader.Find("HDRP/Unlit");
+            }
+            bool isHDRP = (shader != null && !isURP);
 
             if (shader == null) shader = Shader.Find("Sprites/Default");
             if (shader == null) shader = Shader.Find("Hidden/Internal-Colored");
 
             _lineMaterial = new Material(shader);
 
-            if (isHDRP)
+            if (isURP)
+            {
+                _lineMaterial.SetColor("_BaseColor", OutlineColor);
+                _lineMaterial.SetFloat("_Surface", 1f); // Transparent
+                _lineMaterial.SetFloat("_Blend", 0f); // Alpha
+                _lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                _lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                _lineMaterial.SetInt("_ZWrite", 0); // Off
+                _lineMaterial.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always); // Draw on top
+                _lineMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+
+                // Enable URP Emissive glow
+                _lineMaterial.EnableKeyword("_EMISSION");
+                _lineMaterial.SetColor("_EmissionColor", OutlineColor * 3.5f); // 3.5x multiplier for URP glow
+            }
+            else if (isHDRP)
             {
                 _lineMaterial.SetColor("_BaseColor", OutlineColor);
                 

@@ -164,15 +164,34 @@ namespace BunkerTools
             Material mat = AssetDatabase.LoadAssetAtPath<Material>(matPath);
             if (mat == null)
             {
-                Shader shader = Shader.Find("HDRP/Unlit");
-                bool isHDRP = (shader != null);
+                Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
+                bool isURP = (shader != null);
+                if (shader == null) shader = Shader.Find("HDRP/Unlit");
+                bool isHDRP = (shader != null && !isURP);
                 if (shader == null) shader = Shader.Find("Sprites/Default");
                 if (shader == null) shader = Shader.Find("Hidden/Internal-Colored");
 
                 mat = new Material(shader);
                 Color glowColor = new Color(0f, 1f, 0.95f, 0.85f); // Neon Cyan
 
-                if (isHDRP)
+                if (isURP)
+                {
+                    mat.SetColor("_BaseColor", glowColor);
+                    
+                    // Transparent overlay settings
+                    mat.SetFloat("_Surface", 1f); // Transparent
+                    mat.SetFloat("_Blend", 0f); // Alpha
+                    mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                    mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                    mat.SetInt("_ZWrite", 0); // Off
+                    mat.SetInt("_ZTest", (int)UnityEngine.Rendering.CompareFunction.Always); // Draw on top
+                    mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+
+                    // Emission
+                    mat.EnableKeyword("_EMISSION");
+                    mat.SetColor("_EmissionColor", glowColor * 3.5f);
+                }
+                else if (isHDRP)
                 {
                     mat.SetColor("_BaseColor", glowColor);
                     

@@ -59,7 +59,11 @@ namespace BunkerTools
 
             // 4. Create Material
             Debug.Log("Creating BunkerDustMaterial...");
-            Shader particlesShader = Shader.Find("HDRP/ParticlesUnlit");
+            Shader particlesShader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+            if (particlesShader == null)
+            {
+                particlesShader = Shader.Find("HDRP/ParticlesUnlit");
+            }
             if (particlesShader == null)
             {
                 particlesShader = Shader.Find("Particles/Standard Unlit");
@@ -87,12 +91,16 @@ namespace BunkerTools
                 mat.SetTexture("_MainTex", dustTexture);
             }
 
-            // Set to transparent surface type in HDRP
+            // Set to transparent surface type in URP and HDRP
+            if (mat.HasProperty("_Surface"))
+                mat.SetFloat("_Surface", 1); // URP: 1 = Transparent
             if (mat.HasProperty("_SurfaceType"))
-                mat.SetFloat("_SurfaceType", 1); // 1 = Transparent
+                mat.SetFloat("_SurfaceType", 1); // HDRP: 1 = Transparent
             
+            if (mat.HasProperty("_Blend"))
+                mat.SetFloat("_Blend", 0); // URP: 0 = Alpha
             if (mat.HasProperty("_BlendMode"))
-                mat.SetFloat("_BlendMode", 0); // 0 = Alpha blend
+                mat.SetFloat("_BlendMode", 0); // HDRP: 0 = Alpha blend
 
             // Setup blending keywords and parameters for standard/HDRP render pipelines
             mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);

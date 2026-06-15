@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Rendering.HighDefinition;
 
 namespace BunkerTools
 {
@@ -57,7 +56,6 @@ namespace BunkerTools
         public bool syncVolumeWithFlicker = true;
 
         private Light lightComponent;
-        private HDAdditionalLightData hdLightData;
         private MaterialPropertyBlock propertyBlock;
         private float baseIntensity;
         private float noiseTime;
@@ -69,11 +67,10 @@ namespace BunkerTools
         private void Start()
         {
             lightComponent = GetComponent<Light>();
-            hdLightData = GetComponent<HDAdditionalLightData>();
             propertyBlock = new MaterialPropertyBlock();
             
-            // Cached property ID for performance
-            emissiveColorId = Shader.PropertyToID("_EmissiveColor");
+            // Cached property ID for performance (URP uses _EmissionColor)
+            emissiveColorId = Shader.PropertyToID("_EmissionColor");
             
             baseIntensity = lightComponent.intensity;
             noiseTime = Random.Range(0f, 1000f);
@@ -112,12 +109,8 @@ namespace BunkerTools
             float currentIntensity = Mathf.Lerp(minIntensity, maxIntensity, targetValue);
             lightComponent.intensity = currentIntensity;
 
-            // Sync volumetric shafts in HDRP
-            if (syncVolumetric && hdLightData != null)
-            {
-                // Volumetric intensity scales with direct light intensity
-                hdLightData.volumetricDimmer = targetValue;
-            }
+            // Volumetric shafts are not natively supported per-light in URP's dynamic lights
+            // without custom volumetric features, so we skip setting volumetricDimmer.
 
             // Sync Emissive Material using MaterialPropertyBlock (no memory leaks/draw call breaking)
             if (targetRenderer != null)

@@ -222,8 +222,12 @@ namespace BunkerTools
             // Assign material
             if (dustMaterial == null)
             {
-                // Fallback unlit material if not set
-                Shader unlitShader = Shader.Find("HDRP/ParticlesUnlit");
+                // Fallback unlit material if not set (URP-ready)
+                Shader unlitShader = Shader.Find("Universal Render Pipeline/Particles/Unlit");
+                if (unlitShader == null)
+                {
+                    unlitShader = Shader.Find("HDRP/ParticlesUnlit");
+                }
                 if (unlitShader == null)
                 {
                     unlitShader = Shader.Find("Particles/Standard Unlit");

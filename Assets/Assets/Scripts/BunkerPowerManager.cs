@@ -134,7 +134,7 @@ namespace BunkerTools
                 {
                     MaterialPropertyBlock pb = new MaterialPropertyBlock();
                     f.targetRenderer.GetPropertyBlock(pb, f.materialIndex);
-                    pb.SetColor(Shader.PropertyToID("_EmissiveColor"), Color.black);
+                    pb.SetColor(Shader.PropertyToID("_EmissionColor"), Color.black);
                     f.targetRenderer.SetPropertyBlock(pb, f.materialIndex);
                 }
             }

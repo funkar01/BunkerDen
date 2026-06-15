@@ -17,8 +17,8 @@ namespace BunkerTools
         private MaterialPropertyBlock _propBlock;
         private float _animationTimer = 0f;
 
-        // Standard HDRP property IDs
-        private static readonly int EmissiveColorId = Shader.PropertyToID("_EmissiveColor");
+        // URP property IDs
+        private static readonly int EmissiveColorId = Shader.PropertyToID("_EmissionColor");
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
 
         private void Start()

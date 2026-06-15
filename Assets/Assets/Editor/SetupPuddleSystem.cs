@@ -82,12 +82,16 @@ namespace BunkerTools
             }
             Texture2D puddleTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
 
-            // 4. Create and Configure HDRP Decal Material
-            Debug.Log("Configuring HDRP Decal Material...");
-            Shader decalShader = Shader.Find("HDRP/Decal");
+            // 4. Create and Configure Decal Material (URP/HDRP compatible)
+            Debug.Log("Configuring Decal Material...");
+            Shader decalShader = Shader.Find("Shader Graphs/Decal");
             if (decalShader == null)
             {
-                Debug.LogError("HDRP/Decal shader not found! Make sure you are using HDRP.");
+                decalShader = Shader.Find("HDRP/Decal");
+            }
+            if (decalShader == null)
+            {
+                Debug.LogError("Decal shader not found! Make sure you are using URP or HDRP.");
                 return;
             }
 
@@ -153,29 +157,39 @@ namespace BunkerTools
             decalProjGo.transform.localPosition = new Vector3(0f, 2f, 0f); // 2 meters above
             decalProjGo.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); // Face down
 
-            // Add HDRP Decal Projector Component
-            var projector = decalProjGo.AddComponent<UnityEngine.Rendering.HighDefinition.DecalProjector>();
-            projector.material = mat;
-            // X/Y matches the size of the puddle on the floor; Z is the projection distance/depth
-            projector.size = new Vector3(8f, 8f, 4f); 
+            // Add Decal Projector Component dynamically using reflection (prevents compilation errors)
+            var urpDecalType = System.Type.GetType("UnityEngine.Rendering.Universal.DecalProjector, Unity.RenderPipelines.Universal.Runtime");
+            var hdrpDecalType = System.Type.GetType("UnityEngine.Rendering.HighDefinition.DecalProjector, Unity.RenderPipelines.HighDefinition.Runtime");
+            
+            if (urpDecalType != null)
+            {
+                var projector = decalProjGo.AddComponent(urpDecalType);
+                urpDecalType.GetProperty("material")?.SetValue(projector, mat);
+                urpDecalType.GetProperty("size")?.SetValue(projector, new Vector3(8f, 8f, 4f));
+            }
+            else if (hdrpDecalType != null)
+            {
+                var projector = decalProjGo.AddComponent(hdrpDecalType);
+                hdrpDecalType.GetProperty("material")?.SetValue(projector, mat);
+                hdrpDecalType.GetProperty("size")?.SetValue(projector, new Vector3(8f, 8f, 4f));
+            }
+            else
+            {
+                Debug.LogWarning("[SetupPuddleSystem] Neither URP nor HDRP DecalProjector class was found.");
+            }
 
-            // 7. Add Planar Reflection Probe for perfect mirror-like puddle reflections
-            GameObject planarProbeGo = new GameObject("PuddlePlanarReflectionProbe");
-            planarProbeGo.transform.parent = puddleSystemRoot.transform;
+            // 7. Add standard Reflection Probe for high WebGL performance
+            GameObject reflectionProbeGo = new GameObject("PuddleReflectionProbe");
+            reflectionProbeGo.transform.parent = puddleSystemRoot.transform;
             
             // Position slightly above the floor surface
-            planarProbeGo.transform.localPosition = new Vector3(0f, 0.02f, 0f);
-            planarProbeGo.transform.localRotation = Quaternion.identity;
+            reflectionProbeGo.transform.localPosition = new Vector3(0f, 0.05f, 0f);
+            reflectionProbeGo.transform.localRotation = Quaternion.identity;
 
-            var planarProbe = planarProbeGo.AddComponent<UnityEngine.Rendering.HighDefinition.PlanarReflectionProbe>();
-            
-            // Setup the bounding box to cover the floor object
-            planarProbe.influenceVolume.shape = UnityEngine.Rendering.HighDefinition.InfluenceShape.Box;
-            planarProbe.influenceVolume.boxSize = new Vector3(12f, 5f, 12f); // Covers the flooring area
-            
-            // Set update mode to OnAwake/Static for maximum performance unless dynamic elements are needed
-            planarProbe.mode = UnityEngine.Rendering.HighDefinition.ProbeSettings.Mode.Realtime;
-            planarProbe.realtimeMode = UnityEngine.Rendering.HighDefinition.ProbeSettings.RealtimeMode.OnDemand;
+            var reflectionProbe = reflectionProbeGo.AddComponent<ReflectionProbe>();
+            reflectionProbe.size = new Vector3(12f, 5f, 12f);
+            reflectionProbe.mode = UnityEngine.Rendering.ReflectionProbeMode.Realtime;
+            reflectionProbe.refreshMode = UnityEngine.Rendering.ReflectionProbeRefreshMode.OnAwake;
 
             // Mark Scene Dirty and Save
             EditorSceneManager.MarkSceneDirty(scene);
