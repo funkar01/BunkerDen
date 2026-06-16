@@ -1076,7 +1076,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -6526,7 +6526,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -6803,7 +6803,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -7582,7 +7582,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -7684,7 +7684,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -7738,7 +7738,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -8356,7 +8356,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializedBakingSet: {fileID: 11400000, guid: 14c4997762cdbb84cbeaf27fe572fa3c, type: 2}
-  sceneGUID: 533c4dade96120e49b6f8ee666f8de11
+  sceneGUID: a6e98afb06b2c34479ee9d090b10bfff
   obsoleteAsset: {fileID: 0}
   obsoleteCellSharedDataAsset: {fileID: 0}
   obsoleteCellSupportDataAsset: {fileID: 0}
@@ -9546,7 +9546,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -10003,7 +10003,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -10575,7 +10575,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -10663,7 +10663,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -11593,7 +11593,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -13671,7 +13671,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -15438,7 +15438,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -16157,7 +16157,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -18582,7 +18582,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -19785,7 +19785,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -20123,7 +20123,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -20211,7 +20211,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -20343,7 +20343,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -20436,7 +20436,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -21711,7 +21711,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 0.1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -28444,7 +28444,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -28549,7 +28549,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -28978,7 +28978,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -29690,7 +29690,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 1, g: 0.3537736, b: 0.3537736, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -30010,7 +30010,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 1, g: 0.3537736, b: 0.3537736, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -33626,7 +33626,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -37828,7 +37828,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -39361,7 +39361,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -40673,7 +40673,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -41312,7 +41312,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BunkerTools.AtmosphericFlicker
   mode: 2
   minIntensity: 0
-  maxIntensity: 2
+  maxIntensity: 1
   speed: 10
   targetRenderer: {fileID: 0}
   materialIndex: 0
@@ -41366,7 +41366,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -41962,7 +41962,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
@@ -43113,7 +43113,7 @@ Light:
   serializedVersion: 12
   m_Type: 2
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -44901,7 +44901,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Intensity
-      value: 10
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1354939548820434431, guid: c8f29adc3b380de44831d08dc9b218c1, type: 3}
       propertyPath: m_Lightmapping
